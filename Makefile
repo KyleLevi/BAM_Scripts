@@ -14,8 +14,8 @@ full_sra_download:
 	fastq-dump --outdir Input/Metagenomes/ --skip-technical --readids --dumpbase --clip $$l; \
 	done <Input/SraAccList.txt
 
-## Downloads 100k reads, scans, and deletes
-test1:
+## Downloads 100k reads, scans, and deletes FASTQ files with no matches
+download_and_scan:
 	
 heatmap: coverage_depth_csv
 	python bin/csv_to_heatmap.py -i Output/coverage_depth.csv -o "Output/heatmap_$(date +"%d%b%H%M")"
