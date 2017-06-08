@@ -12,7 +12,6 @@ def split_sam(infile, minimum_match_length, out_directory):
     :return:  None
     """
 
-    # Read and open in the right type, sam or bam
     if infile.endswith('.sam'):
         readtype = 'r'
     elif infile.endswith('.bam'):
@@ -27,14 +26,14 @@ def split_sam(infile, minimum_match_length, out_directory):
         return
 
     refnames = {}
-    i = 0  # counts total reads
+    read_count = 0
     for read in samfile.fetch():
-        i += 1
+        read_count += 1
         refname = read.reference_name
         if refname not in refnames:
             refnames[refname] = []
         refnames[refname].append(read)
-    if i == 0:
+    if read_count == 0:
         sys.stderr.write('Input file {} is empty, no new files will be written.\n'.format(infile))
         return
 

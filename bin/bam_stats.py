@@ -4,9 +4,17 @@ import os
 import sys
 
 
-def samstats(infile, csvoutfile, min_read_length=50, verbose=False):
-    """Reads in a single SAM/BAM file and outputs to a CSV file the following information:
-    # stats = [] holds all of the outputs
+def samstats(infile, csvoutfile, min_read_length=50):
+    """
+    Reads in a single SAM/BAM file and outputs to a CSV file the following information:
+    :param infile:  The location and name of the SAM/BAM file to be read  EX: '~/Desktop/SRR3403834.sam'
+    :param csvoutfile:  The location and name of the CSV file to append  EX:  '~/Desktop/bamfile_statistics.csv'
+    :param min_read_length:  The int value that determines which matches are "Clean"
+    :param verbose:  True or False
+    :return: None - Output is written to csvoutfile
+    """
+
+    # stats = [] holds all of the outputs -
     # [0] = run accession EX: SRR3403834
     # [1] = Genome the read mapped to EX: JQ995537
     # [2] = # of matches
@@ -16,9 +24,8 @@ def samstats(infile, csvoutfile, min_read_length=50, verbose=False):
     # [6] = Clean Avg Match Length
     # [7] = Clean Total Matched Bases
     # [8] = Matches lost to "Cleaning"
-    # [9] = Increase in Avg Match Length from cleaning
+    # [9] = Increase in Avg Match Length from "Cleaning"
     # [10] = Total Bases Lost to "Cleaning"
-    """
 
     # stats[0] - run accession
     run_acc = infile.split('.')[0].split('/')[-1]
@@ -28,21 +35,19 @@ def samstats(infile, csvoutfile, min_read_length=50, verbose=False):
     elif infile.endswith('.bam'):
         readtype = 'rb'
     else:
-        if verbose:
-            sys.stderr.write('infile {} does not end with .sam or .bam, trying as samfile...\n'.format(infile))
+        sys.stderr.write('infile {} does not end with .sam or .bam, trying as samfile...\n'.format(infile))
         readtype = 'r'
     try:
         samfile = pysam.AlignmentFile(infile, readtype)
     except Exception as e:
-        sys.stderr.write('Infile {} could not be opened by pysam, check that it is a BAM/SAM file\n\n'.format(infile))
-        print(e)
+        sys.stderr.write('Infile {} could not be opened by pysam, check that it is a BAM/SAM file\n{}\n'.format(infile,e))
         sys.exit()
 
     # [1-4]
     refnames = {}  # {organism: {'total_matches': [], 'total_bases': [], 'stats': [run_acc, refname]}}
-    i = 0  # counts total reads
+    read_count = 0  
     for read in samfile.fetch():
-        i += 1
+        read_count += 1
         refname = read.reference_name
         if refname not in refnames:
             refnames[refname] = {'total_matches': [], 'total_bases': [], 'stats': [run_acc, refname]}
@@ -50,9 +55,8 @@ def samstats(infile, csvoutfile, min_read_length=50, verbose=False):
         refnames[refname]['total_matches'].append(int(x[0]))
         refnames[refname]['total_bases'].append(int(sum(x)))
 
-    if i == 0:  # If no reads
-        if verbose:
-            sys.stderr.write('No reads in file: {}, exiting\n'.format(infile))
+    if read_count == 0:  # If no reads
+        sys.stderr.write('No reads in file: {}, exiting\n'.format(infile))
         return
 
     for k, v in refnames.items():
@@ -90,7 +94,6 @@ if __name__ == '__main__':
     parser.add_argument('-i', help='Name of the input .sam file to be read', required=True)
     parser.add_argument('-o', help='Name of the CSV file to append', required=True)
     parser.add_argument('-l', help='Ignore matches shorter than -l base pairs, default is 50', type=int)
-    parser.add_argument('-v', help='Prints additional information to stdout', action='store_true')
     try:
         args = parser.parse_args()
     except:
@@ -98,6 +101,6 @@ if __name__ == '__main__':
         sys.exit(1)
     if not args.l:
         args.l = 50
-    samstats(args.i, args.o, args.l, args.v)
+    samstats(args.i, args.o, args.l)
     sys.exit(0)
 
