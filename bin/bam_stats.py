@@ -7,10 +7,9 @@ import sys
 def samstats(infile, csvoutfile, min_read_length=50):
     """
     Reads in a single SAM/BAM file and outputs to a CSV file the following information:
-    :param infile:  The location and name of the SAM/BAM file to be read  EX: '~/Desktop/SRR3403834.sam'
-    :param csvoutfile:  The location and name of the CSV file to append  EX:  '~/Desktop/bamfile_statistics.csv'
-    :param min_read_length:  The int value that determines which matches are "Clean"
-    :param verbose:  True or False
+    :param infile: String, The location and name of the SAM/BAM file to be read  EX: '~/Desktop/SRR3403834.sam'
+    :param csvoutfile: String, The location and name of the CSV file to append  EX:  '~/Desktop/bamfile_statistics.csv'
+    :param min_read_length: Int, The value that determines which matches are "Clean"
     :return: None - Output is written to csvoutfile
     """
 
@@ -45,7 +44,7 @@ def samstats(infile, csvoutfile, min_read_length=50):
 
     # [1-4]
     refnames = {}  # {organism: {'total_matches': [], 'total_bases': [], 'stats': [run_acc, refname]}}
-    read_count = 0  
+    read_count = 0
     for read in samfile.fetch():
         read_count += 1
         refname = read.reference_name

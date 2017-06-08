@@ -5,8 +5,14 @@ import pysam
 import math
 
 
-def bam_coverage(infile, size, split_size=100):
-    chunk_size = int(math.ceil(float(size)/split_size))  # math.ceil only returns ints in python 3+
+def bam_coverage(infile, size):
+    """
+    Takes in a BAM/SAM file or directory containing multiple, and returns a list of how many times each
+    position had any base found.
+    :param infile: String, Can be a directory containing multiple BAM/SAM files or a single BAM/SAM file
+    :param size: int, max reference genome length
+    :return: List, each position is one less than the position in the genome
+    """
     if not infile.endswith('.bam'):
         sys.stderr.write('{} does not end with .bam - skipping\n'.format(infile))
 
@@ -23,8 +29,12 @@ def bam_coverage(infile, size, split_size=100):
         for pilups in p.pileups:
             if pilups.query_position:
                 basedepth[p.reference_pos] += 1
+    return basedepth
 
+def condense_list(basedepth, condense_size=100):
     # Condense the list into <splitSize> many chunks
+    size = len(condense_list)
+    chunk_size = int(math.ceil(float(size)/condense_size))  # math.ceil only returns ints in python 3+
     newlist = []
     chunk_size = int(chunk_size)
     for n in range(0, size, chunk_size):
@@ -58,7 +68,8 @@ if __name__ == '__main__':
             if not f.endswith('.bam'):
                 continue
             row_labels.append(f)
-            outstrings.append(map(str, bam_coverage(args.i + f, args.l, args.n)))
+            x = bam_coverage(args.i + f, args.l)
+            outstrings.append(map(str, condense_list(x, args.n)))
         with open(args.o + '.csv', 'w') as outfile:
             for s in outstrings:
                 outfile.write(','.join(s))
@@ -67,7 +78,8 @@ if __name__ == '__main__':
             for s in row_labels:
                 outfile.write(s + '\n')
     else:  # Single BAM file, not a directory
-        x = map(str, bam_coverage(args.i, args.l, args.n))
+        x = bam_coverage(args.i, args.l)
+        x = map(str, condense_list(x, args.n))
         with open(args.o + '.csv', 'a') as outfile:
             outfile.write(','.join(x) + '\n')
         with open(args.o + '.row_labels.txt', 'a') as outfile:
