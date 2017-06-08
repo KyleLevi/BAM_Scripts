@@ -1,10 +1,18 @@
 import sys
 import argparse
-import os
 import pysam
 
-def splitSam(infile, MIN_LEN, OUTDIR):
-    #Read and open in the right type, sam or bam
+
+def split_sam(infile, minimum_match_length, out_directory):
+    """
+    Splits a SAM or BAM file containing matches to multiple organisms into separate files for each organism using pysam.
+    :param infile:  The path and filename  Ex: ~/Desktop/SRR3403834.sam
+    :param minimum_match_length:  Ignore any matches less than this length  EX: 50
+    :param out_directory:  New files will be written to this directory  EX: ~/Desktop/split_samfiles/
+    :return:  None
+    """
+
+    # Read and open in the right type, sam or bam
     if infile.endswith('.sam'):
         readtype = 'r'
     elif infile.endswith('.bam'):
@@ -14,41 +22,39 @@ def splitSam(infile, MIN_LEN, OUTDIR):
         readtype = 'r'
     try:
         samfile = pysam.AlignmentFile(infile, readtype)
-    except:
-        sys.stderr.write('infile %s could not be opened by pysam, check that it is a samfile or bamfile' % infile)
+    except Exception as e:
+        sys.stderr.write('Input file {} could not be opened by pysam, exiting.\n{}\n'.format(infile, e))
         return
 
-    #Group reads by who they matched to
     refnames = {}
-    #[1-3]
-    i = 0 #counts total reads
-    reads = samfile.fetch()
-    for read in reads:
-        i+=1
+    i = 0  # counts total reads
+    for read in samfile.fetch():
+        i += 1
         refname = read.reference_name
         if refname not in refnames:
             refnames[refname] = []
         refnames[refname].append(read)
     if i == 0:
+        sys.stderr.write('Input file {} is empty, no new files will be written.\n'.format(infile))
         return
 
-    #Write oufiles
-    if OUTDIR:
-        if not OUTDIR.endswith('/'):
-            directory = OUTDIR + '/'
+    #  Write oufiles
+    if out_directory:
+        if not out_directory.endswith('/'):
+            directory = out_directory + '/'
         else:
-            directory = OUTDIR
+            directory = out_directory
     else:
         directory = ''.join(infile.split('/')[:-1])
 
     filename = infile.split('/')[-1]
     run_acc = filename.split('.')[0]
-    type = filename.split('.')[1]
-    for k,v in refnames.iteritems():
-        if MIN_LEN > 0:
-            outstring = '{0}{1}.{2}.L{3}.{4}'.format(directory,run_acc,k,MIN_LEN,type)
+    ftype = filename.split('.')[1]
+    for k, v in refnames.items():  # Switched from .iteritems() to .items() for Python 3
+        if minimum_match_length > 0:
+            outstring = '{0}{1}.{2}.L{3}.{4}'.format(directory, run_acc, k, minimum_match_length, ftype)
         else:
-            outstring = '{0}{1}.{2}.{3}'.format(directory,run_acc,k,type)
+            outstring = '{0}{1}.{2}.{3}'.format(directory, run_acc, k, ftype)
 
         if readtype == 'rb':
             outfile = pysam.AlignmentFile(outstring, 'wb', template=samfile)
@@ -56,7 +62,7 @@ def splitSam(infile, MIN_LEN, OUTDIR):
             outfile = pysam.AlignmentFile(outstring, 'w', template=samfile)
         for read in v:
             x, y = read.get_cigar_stats()
-            if x[0] >= MIN_LEN:
+            if x[0] >= minimum_match_length:
                 outfile.write(read)
 
 
@@ -70,9 +76,8 @@ if __name__ == '__main__':
         args = parser.parse_args()
     except:
         parser.print_help()
-        sys.exit(0)
+        sys.exit(1)
     if not args.l:
-       args.l = 0
+        args.l = 0
 
-
-    splitSam(args.i, args.l, args.o)
+    split_sam(args.i, args.l, args.o)
