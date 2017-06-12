@@ -31,7 +31,7 @@ if __name__ == '__main__':
         description='')
     parser.add_argument('-i', help='Input file', required=True)
     parser.add_argument('-o', help='Output to file instead of standard output')
-    parser.add_argument('-k', help='', nargs="*")
+    parser.add_argument('-k', help='Terms to search for', nargs="*")
     parser.add_argument('-a', help='Display all possible search tags', action='store_true')
 
     parser.add_argument('-s', help='Directory to save downloaded XML files in,'
