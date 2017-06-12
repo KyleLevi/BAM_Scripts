@@ -31,14 +31,19 @@ def bam_coverage(infile, size):
                 basedepth[p.reference_pos] += 1
     return basedepth
 
-def condense_list(basedepth, condense_size=100):
-    # Condense the list into <splitSize> many chunks
+def condense_list(big_list, condense_size=100):
+    """
+    Condense a list into n elements by averaging. 
+    :param big_list: List
+    :param condense_size: Int, the size of the new list to be returned
+    :return: 
+    """
     size = len(condense_list)
     chunk_size = int(math.ceil(float(size)/condense_size))  # math.ceil only returns ints in python 3+
     newlist = []
     chunk_size = int(chunk_size)
     for n in range(0, size, chunk_size):
-        newlist.append(sum(basedepth[n:n + chunk_size]) / chunk_size)
+        newlist.append(sum(big_list[n:n + chunk_size]) / chunk_size)
     return newlist
 
 
