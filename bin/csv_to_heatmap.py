@@ -8,6 +8,11 @@ import sys
 
 
 def csv_to_numpy(csv_file):
+    """
+    Reads in a CSV file and returns a numpy array
+    :param csv_file: String, the location and name of the CSV file
+    :return: a Numpy array the dimensions of the CSV
+    """
     with open(csv_file, 'r') as infile:
         lines = infile.readlines()
     stack = None
@@ -17,9 +22,9 @@ def csv_to_numpy(csv_file):
             if x <= 0:
                 newline.append(0)
             else:
-                newline.append(math.log(x,10))
+                newline.append(math.log(x, 10))
         x = np.array(newline)
-        if stack == None:
+        if not stack:
             stack = x
         else:
             try:
@@ -29,15 +34,21 @@ def csv_to_numpy(csv_file):
                     print 'Error: cannot vstack len:{}'.format(len(x))
     return stack
 
-def sortNumpyStack(stack):
-    stack = stack.tolist()
-    stack.sort(key=sum, reverse=True)
-    stack = np.array(stack)
-    return stack
+
+def sort_numpy_array(numpy_array):
+    """
+    Sorts a 2d Numpy array by the sum of each row (highest sum is at the top)
+    :param numpy_array: A 2d numpy array
+    :return: a sorted 2d numpy array
+    """
+    numpy_array = numpy_array.tolist()
+    numpy_array.sort(key=sum, reverse=True)
+    numpy_array = np.array(numpy_array)
+    return numpy_array
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='This program finds the most conserved sequences from a directory of bamfiles and outputs them in fasta format')
+    parser = argparse.ArgumentParser(description='Reads in a CSV file and outputs a basic heatmap of the data')
     parser.add_argument('-i', help='The location of the CSV file to be made into a heatmap', required=True)
     parser.add_argument('-o', help='File name of the figure', required=True)
 
@@ -47,8 +58,11 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
-    csvArray = csv_to_numpy(args.i)
-    ax = sns.heatmap(csvArray, xticklabels=[], yticklabels=[])
+    csv_array = csv_to_numpy(args.i)
+    csv_array = sort_numpy_array(csv_array)
+
+    # This is the default heatmap by numpy
+    ax = sns.heatmap(csv_array, xticklabels=[], yticklabels=[])
     # plt.show()  # Uncommenting this line will show the figure before saving
     plt.savefig(args.o)
 

@@ -6,16 +6,24 @@ from bs4 import BeautifulSoup
 
 
 def run_to_xml_soup(sra_run_id, save_dir=None):
+    """
+    Reads in an SRA Run accession and returns the XML metadata file of that run as a BS4 "soup" object
+    Also, if a directory is specified in the second argument, the XML file will be read from there if it exists
+    or saved to that directory if it does not exist.
+    :param sra_run_id: String, EX: 'SRR3403834'
+    :param save_dir: String, EX: '~/Desktop/SRA_XML_files/'
+    :return: soup (BeautifulSoup4 object, where parser='xml')
+    """
     if save_dir:
         if sra_run_id in os.listdir(save_dir):
-            with open(save_dir + sra_run_id, 'r') as infile:
+            with open(save_dir + sra_run_id + '.xml', 'r') as infile:
                 html = infile.read()
         else:
             url = "http://www.ncbi.nlm.nih.gov/Traces/sra/?run={}&experimental=1&retmode=xml".format(sra_run_id)
             page = urllib.urlopen(url)
             html = page.read()
             page.close()
-            with open(save_dir + sra_run_id, 'w') as outfile:
+            with open(save_dir + sra_run_id + '.xml', 'w') as outfile:
                 outfile.write(html)
     else:
         url = "http://www.ncbi.nlm.nih.gov/Traces/sra/?run={}&experimental=1&retmode=xml".format(sra_run_id)
