@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import urllib
+import re
 from bs4 import BeautifulSoup
 
 
@@ -30,19 +31,20 @@ def run_to_xml_soup(sra_run_id, save_dir=None):
         page = urllib.urlopen(url)
         html = page.read()
         page.close()
-    soup = BeautifulSoup(html, 'xml')
-    return soup
+    xml_soup = BeautifulSoup(html, 'xml')
+    return xml_soup
 
-'''
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='')
-    parser.add_argument('-i', help='Input file', required=True)
-    parser.add_argument('-o', help='Output to file instead of standard output')
-    parser.add_argument('-k', help='Terms to search for', nargs="*")
-    parser.add_argument('-a', help='Display all possible search tags', action='store_true')
-
-    parser.add_argument('-s', help='Directory to save downloaded XML files in,'
+        description='This program takes in a run accession (EX: SRR3403834) with -i and reads the associated XML '
+                    'metadata file from the web.  If -s is specified, the file will be saved in that directory.'
+                    'To get the most out of this program, open it and edit lines 65 onward to suit your needs.')
+    parser.add_argument('-i', '--input', help='Input file', required=True)
+    parser.add_argument('-o', '--output', help='Output to file instead of standard output')
+    parser.add_argument('-k', '--keywords', help='Terms to search for', nargs="*")
+    parser.add_argument('-f', '--full', help='Display the full \'pretty\' XML in stdout', action='store_true')
+    parser.add_argument('-s', '--save', help='Directory to save downloaded XML files in,'
                                    'Also use this to specify if saved XML files are available to skip downloading')
 
     try:
@@ -50,18 +52,39 @@ if __name__ == '__main__':
     except:
         parser.print_help()
         sys.exit(0)
-'''
-save_dir = '../Input/xml_metadata/'
-soup = run_to_xml_soup('srr3403834', save_dir)
-print soup.prettify()
 
+    if not args.save.endswith('/'):
+        args.save = args.save + '/'
 
-argsk = ['DB', 'SCIENTIFIC_NAME', 'TAG', 'VALUE', 'XREF_LINK']
-tags = [a.string for a in soup.find_all('TAG')]
-values = [a.string for a in soup.find_all('VALUE')]
-tag_values = zip(tags, values)
-print tag_values
-for tag in argsk:
-    print tag, [a.string for a in soup.find_all(tag)]
+    if not args.keywords:
+        # This is the default if --keywords is not used, change it to suit your own needs!
+        args.keywords = ['STUDY_ABSTRACT', 'SCIENTIFIC_NAME', 'STUDY_TITLE']
+
+    soup = run_to_xml_soup(args.input, args.save)
+
+    if args.full:
+        sys.stdout.write(soup.prettify())
+    # Here is where you can change what is being printed, a few examples are shown below
+    #-----------------------------------------------------------------------------------
+
+    # Uncomment the following lines to print all (tag, value) pairs for a run
+    #tags = [a.string for a in soup.find_all('TAG')]
+    #values = [a.string for a in soup.find_all('VALUE')]
+    #tag_values = zip(tags, values)
+    #sys.stdout.write(tag_values + '\n')
+
+    # Here is an example of getting a full tag with BS4 and printing it
+    #read_stats = soup.findAll('Statistics')
+    #sys.stdout.write(read_stats + '\n')
+
+    # This is the same example, but using a regex search
+    #string_soup = str(soup)
+    #results = re.findall('<Statistics .*?</Statistics>', string_soup)
+    #read_stats = str(results)
+    #sys.stdout.write(read_stats + '\n')
+
+    # Here is a method for printing all of the arguments taken in with -k or --keywords
+    for keyword in args.keywords:
+        sys.stdout.write(keyword + '\t' + str(soup.find_all(keyword)) + '\n')
 
 
