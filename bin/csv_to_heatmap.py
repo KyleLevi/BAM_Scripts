@@ -49,8 +49,8 @@ def sort_numpy_array(numpy_array):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Reads in a CSV file and outputs a basic heatmap of the data')
-    parser.add_argument('-i', help='The location of the CSV file to be made into a heatmap', required=True)
-    parser.add_argument('-o', help='File name of the figure', required=True)
+    parser.add_argument('-i', '--input', help='The location of the CSV file to be made into a heatmap', required=True)
+    parser.add_argument('-o', '--output', help='File name of the figure', required=True)
 
     try:
         args = parser.parse_args()
@@ -58,13 +58,21 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
-    csv_array = csv_to_numpy(args.i)
+    csv_array = csv_to_numpy(args.input)
     csv_array = sort_numpy_array(csv_array)
 
-    # This is the default heatmap by numpy
+    # This is where you can customize your figure! --------
+    # Documentation for the seaborn heatmap can be found here:
+    # http://seaborn.pydata.org/generated/seaborn.heatmap.html
+    # Feel free to change this to suit your needs, csv_array is a 2d numpy array
+    #  of the data to be plotted, and most graphing modules can read numpy arrays
     ax = sns.heatmap(csv_array, xticklabels=[], yticklabels=[])
+
+
+
+
     # plt.show()  # Uncommenting this line will show the figure before saving
-    plt.savefig(args.o)
+    plt.savefig(args.output)
 
 
 

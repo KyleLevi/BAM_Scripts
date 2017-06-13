@@ -68,15 +68,15 @@ def split_sam(infile, minimum_match_length, out_directory):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Split a sam or bamfile containing matches from multiple genomes into separate sam or bam files')
-    parser.add_argument('-i', help='Name of the input .sam or .bam file to be read', required=True)
-    parser.add_argument('-l', help='Optional to remove any matched reads less than __ bp, default is 0', type=int)
-    parser.add_argument('-o', help='Optional directory for outfiles, default is same directory', type=str)
+    parser.add_argument('-i', '--input', help='Name of the input .sam or .bam file to be read', required=True)
+    parser.add_argument('-l', '--length', help='Optional to remove any matched reads less than __ bp, default is 0', type=int)
+    parser.add_argument('-o', '--output', help='Optional directory for outfiles, default is same directory', type=str)
     try:
         args = parser.parse_args()
     except:
         parser.print_help()
         sys.exit(1)
-    if not args.l:
-        args.l = 0
+    if not args.length:
+        args.length = 0
 
-    split_sam(args.i, args.l, args.o)
+    split_sam(args.input, args.length, args.output)

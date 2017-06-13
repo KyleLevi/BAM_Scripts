@@ -55,13 +55,13 @@ save_dir = '../Input/xml_metadata/'
 soup = run_to_xml_soup('srr3403834', save_dir)
 print soup.prettify()
 
-'''
+
 argsk = ['DB', 'SCIENTIFIC_NAME', 'TAG', 'VALUE', 'XREF_LINK']
 tags = [a.string for a in soup.find_all('TAG')]
 values = [a.string for a in soup.find_all('VALUE')]
 tag_values = zip(tags, values)
 print tag_values
-for tag in kargs:
+for tag in argsk:
     print tag, [a.string for a in soup.find_all(tag)]
-'''
+
 

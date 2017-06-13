@@ -90,9 +90,9 @@ def samstats(infile, csvoutfile, min_read_length=50):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Reads a SAM or BAM file and appends a CSV file with information about the matched reads')
-    parser.add_argument('-i', help='Name of the input .sam file to be read', required=True)
-    parser.add_argument('-o', help='Name of the CSV file to append', required=True)
-    parser.add_argument('-l', help='Ignore matches shorter than -l base pairs, default is 50', type=int)
+    parser.add_argument('-i', '--input', help='Name of the input .sam file to be read', required=True)
+    parser.add_argument('-o', '--output', help='Name of the CSV file to append', required=True)
+    parser.add_argument('-l', '--length', help='Ignore matches shorter than -l base pairs, default is 50', type=int)
     try:
         args = parser.parse_args()
     except:
@@ -100,6 +100,6 @@ if __name__ == '__main__':
         sys.exit(1)
     if not args.l:
         args.l = 50
-    samstats(args.i, args.o, args.l)
+    samstats(args.input, args.output, args.length)
     sys.exit(0)
 

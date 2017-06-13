@@ -51,42 +51,42 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Create a CSV file of coverage depth per BAM file.'
                     'Each new line in the CSV is a different BAM file and the X axis is coverage depth.')
-    parser.add_argument('-i', help='Name of the input .sam or .bam file to be read', required=True)
+    parser.add_argument('-i', '--input', help='Name of the input .sam or .bam file to be read', required=True)
     parser.add_argument('-l', help='Length of the genome', type=int, required=True)
-    parser.add_argument('-n', help='Condense the coverage depth into N sections, default is 100', type=int)
-    parser.add_argument('-o', help='CSV file to be appended or written', type=str, required=True)
+    parser.add_argument('-n', '--number_splits', help='Condense the coverage depth into N sections, default is 100', type=int)
+    parser.add_argument('-o', '--output', help='CSV file to be appended or written', type=str, required=True)
     try:
         args = parser.parse_args()
     except:
         parser.print_help()
         sys.exit(1)
-    if not args.n:
-        args.n = 100
-    if args.o.endswith('.csv'):
-        args.o = args.o.replace('.csv', '')
+    if not args.number_splits:
+        args.number_splits = 100
+    if args.output.endswith('.csv'):
+        args.output = args.output.replace('.csv', '')
 
     # If input is a directory, do all the .bam files, otherwise just do the one file
-    if args.i.endswith('/'):
+    if args.input.endswith('/'):
         outstrings = []
         row_labels = []
-        for f in os.listdir(args.i):
+        for f in os.listdir(args.input):
             if not f.endswith('.bam'):
                 continue
             row_labels.append(f)
-            x = bam_coverage(args.i + f, args.l)
-            outstrings.append(map(str, condense_list(x, args.n)))
-        with open(args.o + '.csv', 'w') as outfile:
+            x = bam_coverage(args.input + f, args.l)
+            outstrings.append(map(str, condense_list(x, args.number_splits)))
+        with open(args.output + '.csv', 'w') as outfile:
             for s in outstrings:
                 outfile.write(','.join(s))
                 outfile.write('\n')
-        with open(args.o + '.row_labels.txt', 'w') as outfile:
+        with open(args.output + '.row_labels.txt', 'w') as outfile:
             for s in row_labels:
                 outfile.write(s + '\n')
     else:  # Single BAM file, not a directory
-        x = bam_coverage(args.i, args.l)
-        x = map(str, condense_list(x, args.n))
-        with open(args.o + '.csv', 'a') as outfile:
+        x = bam_coverage(args.input, args.l)
+        x = map(str, condense_list(x, args.number_splits))
+        with open(args.output + '.csv', 'a') as outfile:
             outfile.write(','.join(x) + '\n')
-        with open(args.o + '.row_labels.txt', 'a') as outfile:
-            outfile.write(args.o + '\n')
+        with open(args.output + '.row_labels.txt', 'a') as outfile:
+            outfile.write(args.output + '\n')
     sys.exit(0)
