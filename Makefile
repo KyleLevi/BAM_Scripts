@@ -16,20 +16,34 @@ heatmap: coverage_depth_csv
 coverage_depth_csv:
 	bash bin/coverage_depth_csv.sh
 
-# Converts SAM files to BAM files, sorts and indexes them one at a time.
-BAM_files:
-	while read l; do \
-	echo "Converting, sorting and indexing $$l..."; \
-	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
-	samtools index Input/BAM_files/$$l.bam; \
-	done <Input/SraAccList.txt
+#Makes split BAM files in the OUTPUT folder from BAM files in INPUT folder
+split_BAM_files:
+	for file in Input/SAM_files/*.sam; do \
+	echo "Splitting $$file, and writing to Output/split_BAM_files ..."; \
+	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
+	file=$$(echo "$$file" | cut -d"." -f1); \
+	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/BAM_files/$$file; \
+	samtools index Input/BAM_files/$$file.bam; \
+	done
+
+# Converts SAM files to BAM files and splits by organism, sorts and indexes them one at a time.
+raw_BAM_files:
+	for file in Input/SAM_files/*.sam; do \
+	echo "Converting, sorting and indexing $$file..."; \
+	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
+	file=$$(echo "$$file" | cut -d"." -f1); \
+	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/BAM_files/$$file; \
+	samtools index Input/BAM_files/$$file.bam; \
+	done
 
 # Scans all of the files in the SRA folder with Bowtie 2 and outputs the results to SAM files in the SAM_Files folder
 SAM_files:
-	while read l; do \
-	echo "Scanning $$l with Bowtie 2..."; \
-	bowtie2 -q -x Input/Genomes/all_genomes --no-unal  Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
-	done <Input/SraAccList.txt
+	for file in Input/SRA_datasets/*.fastq; do \
+	echo "Scanning $$file with Bowtie 2..."; \
+	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
+	file=$$(echo "$$file" | cut -d"." -f1); \
+	bowtie2 -q -x Input/Genomes/all_genomes --no-unal  Input/SRA_datasets/$$file.fastq  -S Input/SAM_files/$$file.sam; \
+	done
 
 # Constructs a single bowtie 2 index from everything in the Input/Genomes/ folder
 bowtie2_index:
@@ -52,6 +66,11 @@ small_sra_download:
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/Metagenomes/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	done <Input/SraAccList.txt
+
+# REVERTS THE PROJECT TO "git clone" STATUS.  AKA When you first downloaded BAM_Scripts
+make hard_clean:
+	-rm -r Input Output
+	mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
 
 
 
