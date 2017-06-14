@@ -17,27 +17,30 @@ coverage_depth_csv:
 	bash bin/coverage_depth_csv.sh
 
 #Makes split BAM files in the OUTPUT folder from BAM files in INPUT folder
-split_BAM_files:
-	for file in Input/SAM_files/*.sam; do \
+split_BAM_files: raw_BAM_files
+	for file in Input/raw_BAM_files/*.bam; do \
 	echo "Splitting $$file, and writing to Output/split_BAM_files ..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
 	file=$$(echo "$$file" | cut -d"." -f1); \
-	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/BAM_files/$$file; \
-	samtools index Input/BAM_files/$$file.bam; \
+	python bin/split_bam.py -i Input/raw_BAM_files/$$file.bam -o Output/split_BAM_files/ -l 50; \
+	done
+	echo "Indexing BAM files in Output/split_BAM_files..."
+	for file in Output/split_BAM_files/*.bam; do \
+	samtools index $$file; \
 	done
 
 # Converts SAM files to BAM files and splits by organism, sorts and indexes them one at a time.
-raw_BAM_files:
+raw_BAM_files: SAM_files
 	for file in Input/SAM_files/*.sam; do \
 	echo "Converting, sorting and indexing $$file..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
 	file=$$(echo "$$file" | cut -d"." -f1); \
-	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/BAM_files/$$file; \
-	samtools index Input/BAM_files/$$file.bam; \
+	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/raw_BAM_files/$$file; \
+	samtools index Input/raw_BAM_files/$$file.bam; \
 	done
 
 # Scans all of the files in the SRA folder with Bowtie 2 and outputs the results to SAM files in the SAM_Files folder
-SAM_files:
+SAM_files: bowtie2_index, small_sra_download
 	for file in Input/SRA_datasets/*.fastq; do \
 	echo "Scanning $$file with Bowtie 2..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
@@ -64,13 +67,15 @@ full_sra_download:
 small_sra_download:
 	while read l; do \
 	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/Metagenomes/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
+	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	done <Input/SraAccList.txt
+# Removes SAM/BAM files and SRA downloads.  Genomes remain.
+
 
 # REVERTS THE PROJECT TO "git clone" STATUS.  AKA When you first downloaded BAM_Scripts
 make hard_clean:
 	-rm -r Input Output
-	mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+	mkdir Input Output Input/raw_BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
 
 
 
