@@ -5,18 +5,17 @@ import pysam
 import math
 
 
-def bam_coverage(infile, size):
+def bam_coverage(infile):
     """
     Takes in a BAM/SAM file or directory containing multiple, and returns a list of how many times each
     position had any base found.
     :param infile: String, Can be a directory containing multiple BAM/SAM files or a single BAM/SAM file
-    :param size: int, max reference genome length
     :return: List, each position is one less than the position in the genome
     """
     if not infile.endswith('.bam'):
         sys.stderr.write('{} does not end with .bam - skipping\n'.format(infile))
 
-    basedepth = [0] * size
+    base_depth = []
     try:
         bamfile = pysam.AlignmentFile(infile, 'rb')
     except Exception as e:
@@ -24,12 +23,15 @@ def bam_coverage(infile, size):
         sys.stderr.write(e)
         sys.exit(1)
 
-    # Make the basedepth list
+    # Make the base_depth list
     for p in bamfile.pileup():
         for pilups in p.pileups:
             if pilups.query_position:
-                basedepth[p.reference_pos] += 1
-    return basedepth
+                if p.reference_pos >= len(base_depth):
+                    while p.reference_pos >= len(base_depth):
+                        base_depth.append(0)
+                base_depth[p.reference_pos] += 1
+    return base_depth
 
 def condense_list(big_list, condense_size=100):
     """
@@ -38,7 +40,7 @@ def condense_list(big_list, condense_size=100):
     :param condense_size: Int, the size of the new list to be returned
     :return: 
     """
-    size = len(condense_list)
+    size = len(big_list)
     chunk_size = int(math.ceil(float(size)/condense_size))  # math.ceil only returns ints in python 3+
     newlist = []
     chunk_size = int(chunk_size)
@@ -52,7 +54,6 @@ if __name__ == '__main__':
         description='Create a CSV file of coverage depth per BAM file.'
                     'Each new line in the CSV is a different BAM file and the X axis is coverage depth.')
     parser.add_argument('-i', '--input', help='Name of the input .sam or .bam file to be read', required=True)
-    parser.add_argument('-l', help='Length of the genome', type=int, required=True)
     parser.add_argument('-n', '--number_splits', help='Condense the coverage depth into N sections, default is 100', type=int)
     parser.add_argument('-o', '--output', help='CSV file to be appended or written', type=str, required=True)
     try:
@@ -73,7 +74,9 @@ if __name__ == '__main__':
             if not f.endswith('.bam'):
                 continue
             row_labels.append(f)
-            x = bam_coverage(args.input + f, args.l)
+            x = bam_coverage(args.input + f)
+            if len(x) < 1:
+                continue
             outstrings.append(map(str, condense_list(x, args.number_splits)))
         with open(args.output + '.csv', 'w') as outfile:
             for s in outstrings:
@@ -83,7 +86,7 @@ if __name__ == '__main__':
             for s in row_labels:
                 outfile.write(s + '\n')
     else:  # Single BAM file, not a directory
-        x = bam_coverage(args.input, args.l)
+        x = bam_coverage(args.input)
         x = map(str, condense_list(x, args.number_splits))
         with open(args.output + '.csv', 'a') as outfile:
             outfile.write(','.join(x) + '\n')
