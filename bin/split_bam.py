@@ -25,7 +25,7 @@ def split_sam(infile, minimum_match_length, out_directory):
         sys.stderr.write('Input file {} could not be opened by pysam, exiting.\n{}\n'.format(infile, e))
         return
 
-    refnames = {}
+    refnames = {}  # This will look like {organism1: [read1, read2, read3], organism2: [...], }
     read_count = 0
     for read in samfile.fetch():
         read_count += 1
@@ -50,7 +50,7 @@ def split_sam(infile, minimum_match_length, out_directory):
     run_acc = filename.split('.')[0]
     ftype = filename.split('.')[1]
     for k, v in refnames.items():  # Switched from .iteritems() to .items() for Python 3
-        organism_folder = '/' + k + '/'
+        organism_folder = k + '/'
         full_directory = directory + organism_folder
         if minimum_match_length > 0:
             outstring = '{0}{1}.{2}.L{3}.{4}'.format(full_directory, run_acc, k, minimum_match_length, ftype)
