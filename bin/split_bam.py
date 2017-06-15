@@ -50,10 +50,12 @@ def split_sam(infile, minimum_match_length, out_directory):
     run_acc = filename.split('.')[0]
     ftype = filename.split('.')[1]
     for k, v in refnames.items():  # Switched from .iteritems() to .items() for Python 3
+        organism_folder = '/' + k + '/'
+        full_directory = directory + organism_folder
         if minimum_match_length > 0:
-            outstring = '{0}{1}.{2}.L{3}.{4}'.format(directory, run_acc, k, minimum_match_length, ftype)
+            outstring = '{0}{1}.{2}.L{3}.{4}'.format(full_directory, run_acc, k, minimum_match_length, ftype)
         else:
-            outstring = '{0}{1}.{2}.{3}'.format(directory, run_acc, k, ftype)
+            outstring = '{0}{1}.{2}.{3}'.format(full_directory, run_acc, k, ftype)
 
         if readtype == 'rb':
             outfile = pysam.AlignmentFile(outstring, 'wb', template=samfile)
