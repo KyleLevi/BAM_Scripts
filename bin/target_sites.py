@@ -1,5 +1,6 @@
 import argparse
 import sys
+import operator
 from functools import reduce
 from conserved_regions_csv import bam_base_distribution
 
@@ -16,7 +17,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-i', '--input', help='Directory containing bamfiles.')
     parser.add_argument('-l', '--length', help='The length of the sequence to be found.', required=True, type=int)
-    parser.add_argument('-g', '--genome-length', help='The maximum genome length you wish to search. Default is 100,000', required=True, type = int)
     parser.add_argument('-n', '--num-seqs', help='The top N sequences you want returned.  Default is 50 sequences', type = int)
     parser.add_argument('-d', '--depth', help='Exclude sites with less than -d coverage depth.  Default is 10', type = int)
     parser.add_argument('-s', '--start', help='Exclude sites that start before the -s value.  Default is 0', type = int)
@@ -29,26 +29,19 @@ if __name__ == '__main__':
         sys.exit(1)
     if not args.start:
         args.start = 0
-    if not args.end:
-        args.end = args.genome_length
+
     if not args.num_seqs:
         args.num_seqs = 50
     if not args.depth:
         args.depth = 10
 
-    list_to_base_switch = {
-        0: "A",
-        1: "C",
-        2: "G",
-        3: "T",
-        4: "-"
-    }
-
-    base_lists = bam_base_distribution(args.input, args.genome_length)
-    conservation_list = [float(max(base_list))/sum(base_list) if sum(base_list) > 0 else 0 for base_list in base_lists]
-    depth_list = [sum(base_list) for base_list in base_lists]
-    consensus_genome = [list_to_base_switch[base_list.index(max(base_list))] for base_list in base_lists]
+    base_lists = bam_base_distribution(args.input)
+    conservation_list = [float(max(base_list.values()))/sum(base_list.values()) if sum(base_list.values()) > 0 else 0 for base_list in base_lists]
+    depth_list = [sum(base_list.values()) for base_list in base_lists]
+    consensus_genome = [max(base_list.iteritems(), key=operator.itemgetter(1))[0] if len(base_list) > 0 else "N" for base_list in base_lists]
     score_list = []
+    if not args.end:
+        args.end = len(depth_list)
     for i in range(args.start, args.end - args.length):
         if min(depth_list[i:i+args.length]) < args.depth:
             score_list.append(-1)
