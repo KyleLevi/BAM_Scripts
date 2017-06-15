@@ -1,9 +1,11 @@
-import os
 import sys
-import argparse
 import subprocess
 
+
 #This python script will test if all of the required programs are installed
+sys.stdout.write("Testing to see if required programs are installed.\nNote: This does not thoroughly test all aspects"
+                 " of each program, only that it is installed and setup with PATH a variable.\n"
+                 "More on PATH variables here: http://www.linfo.org/path_env_var.html\n")
 try:
     import pysam
     sys.stdout.write('Pysam\tOK\n')
@@ -16,29 +18,26 @@ try:
 except:
     sys.stdout.write('BS4\tFailed\n')
 
-proc = subprocess.Popen('fastq-dump -X 2 SRR3403834', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+proc = subprocess.Popen('fastq-dump --help', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 while proc.poll() is None:
     commandResult = proc.wait()
-if not commandResult is 0:
+if commandResult is 0:
+    sys.stdout.write('SRA Toolkit\tOK\n')
+else:
+    sys.stdout.write('SRA Toolkit\tFailed\n')
 
+proc = subprocess.Popen('bowtie2 --help', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+while proc.poll() is None:
+    commandResult = proc.wait()
+if commandResult is 0:
+    sys.stdout.write('Bowtie 2\tOK\n')
+else:
+    sys.stdout.write('Bowtie 2\tFailed\n')
 
-
-
-
-
-
-'''
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='')
-    parser.add_argument('-i', help='Input file', required=True)
-    parser.add_argument('-o', help='Output file', required=True)
-    parser.add_argument('-l', help='', type=int)
-    parser.add_argument('-f', help='', action="store_true")
-
-    try:
-        args = parser.parse_args()
-    except:
-        parser.print_help()
-        sys.exit(0)
-'''
+proc = subprocess.Popen('which samtools', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+while proc.poll() is None:
+    commandResult = proc.wait()
+if commandResult is 0:
+    sys.stdout.write('Samtools\tOK\n')
+else:
+    sys.stdout.write('Samtools\tFailed\n')
