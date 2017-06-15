@@ -5,19 +5,18 @@ import pysam
 import math
 
 
-def bam_base_distribution(infile, maximum):
+def bam_base_distribution(infile):
     """
     Reads in a single BAM file or directory containing BAM files and returns
     a dictionary of base counts at each position.
     EX:  this def returns "base_positions", a list of dicts, and
     base_positions[300]["A"] will give you the number of times "A" occurs at position 300
     :param infile: String, input file or directory
-    :param maximum: Int, length of the reference genome (Overestimate if unknown)
     :return: List containing dictionaries
     """
 
     # This list stores information about the bases at each position in the genome and is the return
-    base_positions = [{} for y in range(maximum)]
+    base_positions = []
 
     if infile.endswith('/'):
         file_list = os.listdir(infile)
@@ -42,9 +41,12 @@ def bam_base_distribution(infile, maximum):
                 else:
                     bp = 'N'
                 try:
+                    if p.reference_pos >= len(base_positions):
+                        while p.reference_pos >= len(base_positions):
+                            base_positions.append({})
                     base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
                 except Exception as e:
-                    sys.stderr.write(e)
+                    sys.stderr.write(str(e)+'\n')
                     continue
     return base_positions
 
@@ -66,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', help='Output file', required=True)
     parser.add_argument('--number-splits', '-n', help='Number of sections to group the genome into.'
                                    'Anything over 500 may not show up well in a heatmap.', type=int)
-    parser.add_argument('-m', help='Genome length, if you do not know, overestimate', required=True, type=int)
+    parser.add_argument('-m', help='Genome length, if you do not know, overestimate',  type=int)
     parser.add_argument('--full', '-f', help='Output the full base distribution (to view in a spreadsheet)'
                                    'and not just the CSV for a heatmap', action="store_true")
 
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     if not args.number_splits:
         args.number_splits = 100
 
-    full_base_dist = bam_base_distribution(args.input, args.m)
+    full_base_dist = bam_base_distribution(args.input)
 
     if args.full:
         output = []
