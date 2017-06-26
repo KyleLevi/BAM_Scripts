@@ -68,7 +68,6 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', help='Output file', required=True)
     parser.add_argument('--number-splits', '-n', help='Number of sections to group the genome into.'
                                    'Anything over 500 may not show up well in a heatmap.', type=int)
-    parser.add_argument('-m', help='Genome length, if you do not know, overestimate',  type=int)
     parser.add_argument('--full', '-f', help='Output the full base distribution (to view in a spreadsheet)'
                                    'and not just the CSV for a heatmap', action="store_true")
 
