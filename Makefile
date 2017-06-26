@@ -1,23 +1,44 @@
+# This Makefile contains helpfull commands for downloading and analyzing data from the SRA.
+# They can be run from the terminal by typing "make comand_name".  EX: Make BAM_stats
+# Even if you never use these commands here, they provide a good example of ways to use the python
+#  scripts included in this project.
 
+test:
+	python bin/test_requirements.py
 
+demo:
+	#Demo SRA accession list
+	echo "SRR3403834.sra\nSRR3403835.sra\nSRR3403836.sra\n" > Sra_Acc_List.txt
+	#Download 100k reads from each dataset
+	while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
+	done <Input/SraAccList.txt
 
 # Runs bam_stats.py for each BAM file in Output/BAM_files/ and outputs to Output/BAM_stats_output.csv
-bam_stats:
+BAM_stats:
 	for f in Input/BAM_files/*.bam; do \
 	python bin/bam_stats.py -i $$f -o Output/BAM_stats_output.csv -l 50; \
 	done
 
-	
+
+
+# Turn your CSV files into heatmaps! Open this python file (bin/csv_to_heatmap.py) and
+#  edit lines 64-70 to change what the heatmap looks like.
+# Here is a good starting place for the Seaborn Heatmap: http://seaborn.pydata.org/generated/seaborn.heatmap.html
 coverage_depth_heatmap: coverage_depth_csv
-	python bin/csv_to_heatmap.py -i Output/coverage_depth.csv -o "Output/heatmap_$(date +"%d%b%H%M")"
+	python bin/csv_to_heatmap.py -i Output/coverage_depth.csv -o "Output/coverage_heatmap_$(date +"%d%b%H%M")"
+
+conserved_regions_heatmap: conserved_regions_csv
+	python bin/csv_to_heatmap.py -i Output/conserved_regions.csv -o "Output/conservation_heatmap_$(date +"%d%b%H%M")"
 
 # Makes a coverage depth CSV from BAM files for visualization
 coverage_depth_csv:
 	python bin/coverage_depth_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/coverage_depth.csv
 
 # Makes a CSV file containing the conservation of each base
-conservation_csv:
-    python bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
+conserved_regions_csv:
+	python bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
 
 
 #Makes split BAM files in the OUTPUT folder from BAM files in INPUT folder
@@ -33,7 +54,7 @@ split_BAM_files: raw_BAM_files
 	samtools index $$file; \
 	done
 
-only_split_BAM_files
+only_split_BAM_files:
 	for file in Input/raw_BAM_files/*.bam; do \
 	echo "Splitting $$file, and writing to Output/split_BAM_files ..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
@@ -74,7 +95,7 @@ SAM_files: bowtie2_index, small_sra_download
 	done
 
 only_SAM_files:
-   	for file in Input/SRA_datasets/*.fastq; do \
+	for file in Input/SRA_datasets/*.fastq; do \
 	echo "Scanning $$file with Bowtie 2..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
 	file=$$(echo "$$file" | cut -d"." -f1); \
@@ -110,7 +131,7 @@ make hard_clean:
 
 # Removes SAM/BAM files and SRA downloads.  Genomes remain.
 soft_clean:
-    -rm Input/SRA_datasets/* Input/SAM_files/* Input/raw_BAM_files/*
+	-rm Input/SRA_datasets/* Input/SAM_files/* Input/raw_BAM_files/*
 
 
 
