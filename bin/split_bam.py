@@ -1,6 +1,8 @@
 import sys
 import argparse
 import pysam
+import os
+import re
 
 
 def split_sam(infile, minimum_match_length, out_directory):
@@ -50,12 +52,16 @@ def split_sam(infile, minimum_match_length, out_directory):
     run_acc = filename.split('.')[0]
     ftype = filename.split('.')[1]
     for k, v in refnames.items():  # Switched from .iteritems() to .items() for Python 3
+        k = re.sub(r'[\\/*?:"<>|]',"",k)
         organism_folder = k + '/'
         full_directory = directory + organism_folder
         if minimum_match_length > 0:
             outstring = '{0}{1}.{2}.L{3}.{4}'.format(full_directory, run_acc, k, minimum_match_length, ftype)
         else:
             outstring = '{0}{1}.{2}.{3}'.format(full_directory, run_acc, k, ftype)
+
+        if not os.path.exists(full_directory):
+            os.makedirs(full_directory)
 
         if readtype == 'rb':
             outfile = pysam.AlignmentFile(outstring, 'wb', template=samfile)
