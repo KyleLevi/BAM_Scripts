@@ -15,13 +15,14 @@ demo:
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	done <Input/SraAccList.txt
 
+
+#---------------Applying Python Scripts to BAM files---------------
+
 # Runs bam_stats.py for each BAM file in Output/BAM_files/ and outputs to Output/BAM_stats_output.csv
 BAM_stats:
 	for f in Input/BAM_files/*.bam; do \
 	python bin/bam_stats.py -i $$f -o Output/BAM_stats_output.csv -l 50; \
 	done
-
-
 
 # Turn your CSV files into heatmaps! Open this python file (bin/csv_to_heatmap.py) and
 #  edit lines 64-70 to change what the heatmap looks like.
@@ -40,6 +41,8 @@ coverage_depth_csv:
 conserved_regions_csv:
 	python bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
 
+
+#---------------Downloading SRA datasets and Generating BAM files---------------
 
 #Makes split BAM files in the OUTPUT folder from BAM files in INPUT folder
 split_BAM_files: raw_BAM_files
@@ -121,7 +124,9 @@ small_sra_download:
 full_sra_download:
 	while read l; do \
 	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/Metagenomes/ --skip-technical --readids --split-files --dumpbase --clip $$l; \
+	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids --split-files --dumpbase --clip $$l; \
+	#This next line will delete the .sra file from ~/ncbi/public/sra; \
+	-rm ~/ncbi/public/sra/$$l.sra; \
 	done <Input/SraAccList.txt
 
 # Deletes everything in the Input and Output folders
