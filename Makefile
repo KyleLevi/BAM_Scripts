@@ -52,7 +52,7 @@ split_BAM_files: raw_BAM_files
 	file=$$(echo "$$file" | cut -d"." -f1); \
 	python bin/split_bam.py -i Input/raw_BAM_files/$$file.bam -o Output/split_BAM_files/ -l 50; \
 	done
-	echo "Indexing BAM files in Output/split_BAM_files..."
+	echo "Indexing BAM files in Output/split_BAM_files..." ; \
 	for file in Output/split_BAM_files/*.bam; do \
 	samtools index $$file; \
 	done
@@ -64,7 +64,7 @@ only_split_BAM_files:
 	file=$$(echo "$$file" | cut -d"." -f1); \
 	python bin/split_bam.py -i Input/raw_BAM_files/$$file.bam -o Output/split_BAM_files/ -l 50; \
 	done
-	echo "Indexing BAM files in Output/split_BAM_files..."
+	echo "Indexing BAM files in Output/split_BAM_files..."; \
 	for file in Output/split_BAM_files/*.bam; do \
 	samtools index $$file; \
 	done
@@ -89,7 +89,7 @@ only_raw_BAM_files:
 	done
 
 # Scans all of the files in the SRA_datasets folder with Bowtie 2 and outputs the results to SAM files in the SAM_Files folder
-SAM_files: bowtie2_index, small_sra_download
+SAM_files: bowtie2_index small_sra_download
 	for file in Input/SRA_datasets/*.fastq; do \
 	echo "Scanning $$file with Bowtie 2..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
