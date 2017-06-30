@@ -38,7 +38,7 @@ if __name__ == '__main__':
     base_lists = bam_base_distribution(args.input)
     conservation_list = [float(max(base_list.values()))/sum(base_list.values()) if sum(base_list.values()) > 0 else 0 for base_list in base_lists]
     depth_list = [sum(base_list.values()) for base_list in base_lists]
-    consensus_genome = [max(base_list.iteritems(), key=operator.itemgetter(1))[0] if len(base_list) > 0 else "N" for base_list in base_lists]
+    consensus_genome = [max(base_list.iteritems(), key=operator.itemgetter(1))[0] if len(base_list) > 0 else "-" for base_list in base_lists]
     score_list = []
     if not args.end:
         args.end = len(depth_list)
