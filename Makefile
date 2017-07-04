@@ -9,12 +9,13 @@ test:
 demo:
 	#Demo SRA accession list
 	echo "SRR3403834.sra\nSRR3403835.sra\nSRR3403836.sra\n" > Sra_Acc_List.txt
-	#Download 100k reads from each dataset
-	while read l; do \
-	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
-	done <Input/SraAccList.txt
-
+	#Download 100 sample reads
+	fastq-dump --outdir Input/SRA_datasets/ -N 100 --skip-technical --readids  --dumpbase --clip SRR3403834
+	#Create a fake genome (ATGC)
+	echo ">fake_DNA_sequence\nACGTACGT" > Input/Genomes/fake_genome.fasta
+	bowtie2-build Input/Genomes/fake_genome.fasta Input/Genomes/fake_genome
+	bowtie2 -q -x Input/Genomes/fake_genome --no-unal  Input/SRA_datasets/SRR3403834.fastq  -S Input/SAM_files/demo_SRR3403834.sam
+	python bin/conserved_regions.py -i Input/SAM_files/demo_SRR3403834.sra -o Output/demo_SRR3403834.csv -f
 
 #---------------Applying Python Scripts to BAM files---------------
 
