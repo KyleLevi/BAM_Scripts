@@ -5,10 +5,10 @@ BAM_Scripts is a collection of tools grouped into two main functions.
 ### Getting Started
 ##### 1. Finding SRA data to work with
 
-The SRA provides a great interactive search functionality for finding data sets.  Use this to find runs that you are interested in and when you are done, download the run list as a file called "SraRunAcc.txt". *#TODO: Insert picture here*. 
-Place this in the "Input" folder of the project. \
+The SRA provides a great interactive search functionality for finding data sets.  Use this to find runs that you are interested in and when you are done, download the run list as a file called "SraRunAcc.txt" and palce it in the "Input" folder of BAM_Scripts.
 
-*Note: If you are using the makefile to simplify downloading, it is *very* important that you do not rename SraRunAcc.txt*
+*Downloading the "SraRunAcc.txt" file can be done clicking the "Send to" drop down menu and selecting "File" and choosing "Accession List" as the format.*
+
 
 ##### 2. Add FASTA genomes to the Input/Genomes folder
 
@@ -42,7 +42,11 @@ This project requires the following programs:
 *Note: if you are using the Makefile, these programs must also have the appropriate PATH variable setup. This can be checked by running:*
 >make test
 
-Additionally, a demo is available by running(TODO):
+Additionally, a demo is available by running:
 >make demo
+
+Lastly, the project can be reset with:
+>make clean
+
 
 
