@@ -1,0 +1,26 @@
+Version 1.0 - July 5, 2017 - Release!
+ * 8 Python Scripts and a Makefile
+
+Makefile
+Commands for downloading SRA data sets from a SraRunAcc.txt file, using Bowtie2 for readmapping and Samtools for converting SAM to BAM files. Additional commands exist as examples of how to use the python scripts.
+
+bam_stats.py
+Reads a single BAM file and appends a CSV file with information about the average length, number of matches in the file.
+
+conserved_regions_csv.py
+Reads a single BAM file or directory containing BAM files and outputs a CSV file where each row is a position in the genome, and each column is how many times A, T, C, G and N were found.
+
+coverage_depth_csv.py
+Reads a single BAM file or directory containing BAM files and outputs a CSV file were each row is a BAM file and each column is the number of bases that matched to that position in the genome
+
+split_bam.py
+Reads a single BAM file and outputs a new BAM file for each organism that contains all of the matches to that organism in the input file.
+
+target_sites.py
+Reads in a directory containing BAM files and outputs a FASTA file containing the most conserved regions in the genome.
+
+test_requirements.py
+Prints to standard output the status of the required programs. “OK” if the program is installed and accessible, “Failed” otherwise.
+
+xml_scrape.py
+Reads in an SRA run accession and downloads the XML metadata file.
