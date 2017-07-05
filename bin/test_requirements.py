@@ -3,7 +3,7 @@ import subprocess
 
 
 #This python script will test if all of the required programs are installed
-sys.stdout.write("Testing to see if required programs are installed.\nNote: This does not thoroughly test all aspects"
+sys.stdout.write("Testing to see if required programs are installed.\nNote: This does not test all aspects"
                  " of each program, only that it is installed and setup with PATH a variable.\n"
                  "More on PATH variables here: http://www.linfo.org/path_env_var.html\n")
 try:
@@ -14,9 +14,9 @@ except:
 
 try:
     import bs4
-    sys.stdout.write('BS4\tOK\n')
+    sys.stdout.write('BS4(optional)\tOK\n')
 except:
-    sys.stdout.write('BS4\tFailed\n')
+    sys.stdout.write('BS4(optional)\tFailed\n')
 
 proc = subprocess.Popen('fastq-dump --help', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 while proc.poll() is None:
