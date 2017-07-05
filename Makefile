@@ -7,15 +7,14 @@ test:
 	python bin/test_requirements.py
 
 demo:
-	#Demo SRA accession list
-	echo "SRR3403834.sra\nSRR3403835.sra\nSRR3403836.sra\n" > Sra_Acc_List.txt
 	#Download 100 sample reads
-	fastq-dump --outdir Input/SRA_datasets/ -N 100 --skip-technical --readids  --dumpbase --clip SRR3403834
+	fastq-dump --outdir Input/SRA_datasets/ -X 100 --skip-technical --readids  --dumpbase --clip SRR3403834
 	#Create a fake genome (ATGC)
-	echo ">fake_DNA_sequence\nACGTACGT" > Input/Genomes/fake_genome.fasta
+	echo ">fake_DNA_sequence\nACGTTGCA" > Input/Genomes/fake_genome.fasta
 	bowtie2-build Input/Genomes/fake_genome.fasta Input/Genomes/fake_genome
 	bowtie2 -q -x Input/Genomes/fake_genome --no-unal  Input/SRA_datasets/SRR3403834.fastq  -S Input/SAM_files/demo_SRR3403834.sam
 	python bin/conserved_regions.py -i Input/SAM_files/demo_SRR3403834.sra -o Output/demo_SRR3403834.csv -f
+	echo "Demo complete.\n100 Reads from SRR3403834 were downloaded to Input/SRA_datasets\nA bowtie2 index of the bases \"ACGTACGT\" was build\nThe dataset was scanned for this section of DNA using Bowtie2.\nThe resulting SAM file was converted to a BAM file.\nA CSV file of the file should be available in the Output folder/nTo delete these files run \"make clean\""
 
 #---------------Applying Python Scripts to BAM files---------------
 
