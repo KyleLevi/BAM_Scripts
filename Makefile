@@ -14,7 +14,7 @@ demo: clean
 	bowtie2-build Input/Genomes/ecoli16s.fasta Input/Genomes/ecoli16s
 	bowtie2 -q -x Input/Genomes/ecoli16s --no-unal  Input/SRA_datasets/SRR3403834.fastq  -S Input/SAM_files/demo_SRR3403834.sam
 	python bin/conserved_regions_csv.py -i Input/SAM_files/demo_SRR3403834.sra -o Output/demo_SRR3403834.csv -f
-	printf "Demo complete.\n100 Reads from SRR3403834 were downloaded to Input/SRA_datasets\nA bowtie2 index of the bases \"ACGTACGT\" was build\nThe dataset was scanned for this section of DNA using Bowtie2.\nA CSV file of the file should be available in the Output folder/nTo delete these files run \"make clean\""
+	printf "Demo complete.\n100 Reads from SRR3403834 were downloaded to Input/SRA_datasets\nA bowtie2 index of the bases \"ACGTACGT\" was build\nThe dataset was scanned for this section of DNA using Bowtie2.\nA CSV file of the file should be available in the Output folder\nTo delete these files run \"make clean\""
 
 #---------------Applying Python Scripts to BAM files---------------
 
