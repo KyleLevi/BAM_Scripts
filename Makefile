@@ -12,7 +12,7 @@ demo: clean
 	esearch -db nucleotide -query "NC_024711.1" | efetch -format fasta > Input/Genomes/NC_024711.1.fasta
 	bowtie2-build Input/Genomes/NC_024711.1.fasta Input/Genomes/crassphage_index
 	bowtie2 -q -x Input/Genomes/crassphage_index --no-unal  Input/SRA_datasets/SRR3403834.fastq  -S Input/SAM_files/demo_SRR3403834.sam
-	python bin/conserved_regions_csv.py -i Input/SAM_files/demo_SRR3403834.sra -o Output/demo_SRR3403834.csv -f
+	#python bin/conserved_regions_csv.py -i Input/SAM_files/demo_SRR3403834.sra -o Output/demo_SRR3403834.csv -f
 	#printf "Demo complete.\n100 Reads from SRR3403834 were downloaded to Input/SRA_datasets\nA bowtie2 index of the bases \"ACGTACGT\" was build\nThe dataset was scanned for this section of DNA using Bowtie2.\nA CSV file of the file should be available in the Output folder\nTo delete these files run \"make clean\""
 
 #---------------Applying Python Scripts to BAM files---------------
