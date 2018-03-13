@@ -15,7 +15,22 @@ initial_scan: bowtie2_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l.sra; \
+	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
+	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
+	samtools index Input/BAM_files/$$l.bam; \
+	done <Input/SraAccList.txt; \
+	echo "Processing SAM to BAM files and Indexing..."; \
+	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
+
+full_scan: bowtie2_index
+	while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
+	echo "Scanning $$l with Bowtie 2..."; \
+	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
+	echo "Scan Complete, Removing Data Sets"; \
+	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
 	samtools index Input/BAM_files/$$l.bam; \
