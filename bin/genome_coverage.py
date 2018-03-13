@@ -17,8 +17,8 @@ def genome_coverage_dict(infile):
         bamfile = pysam.AlignmentFile(infile, 'rb')
     except Exception as e:
         sys.stderr.write(infile + ' Could not be read\n')
-        sys.stderr.write(e)
-        sys.exit(1)
+        sys.stderr.write(str(e))
+        return
 
     # Get a dict of genome lengths from the header
     genome_lengths = {}
@@ -62,16 +62,23 @@ if __name__ == '__main__':
 
     if not args.dir:
         x = genome_coverage_dict(args.input)
-        for k,v in x.items():
-            sys.stdout.write('\t'.join([k,str(v),'\n']))
+        if x:
+            for k,v in x.items():
+                sys.stdout.write('\t'.join([k,str(v),'\n']))
+        else:
+            sys.stdout.write('Everything worked with this script but the BAM file is empty :(')
     else:
         all_files = {}
         for fname in os.listdir(args.input):
             all_files[fname] = genome_coverage_dict(args.input + fname)
         for fname, dict in all_files.items():
             sys.stdout.write(fname + '\n')
-            for k,v in dict.items():
-                sys.stdout.write('\t'.join(['', k, str(v), '\n']))
+            if dict:
+                for k,v in dict.items():
+                    sys.stdout.write('\t'.join(['', k, str(v), '\n']))
+            else:
+                sys.stdout.write('Empty')
+
 
 
 

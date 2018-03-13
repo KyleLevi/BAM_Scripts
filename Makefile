@@ -5,14 +5,14 @@
 
 #---------------Bio 496, Mini Project 1, Initial Scan---------------
 init:
-    mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+    -mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
 
 initial_scan: bowtie2_index
     while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with Bowtie 2..."; \
-	bowtie2 -q -x Input/Genomes/all_genomes --no-unal  Input/SRA_datasets/$$l  -S Input/SAM_files/$$l.sam; \
+	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	echo "Scan Complete, Removing Data Sets"; \
 	rm -f ~/ncbi/public/sra/$$l.sra; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
