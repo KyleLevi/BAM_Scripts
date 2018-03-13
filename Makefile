@@ -11,18 +11,12 @@ initial_scan: bowtie2_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	bowtie2 -q -x Input/Genomes/all_genomes --no-unal  Input/SRA_datasets/$$l  -S Input/SAM_files/$$l.sam; \
 	echo "Scan Complete, Removing Data Sets"; \
-	-rm ~/ncbi/public/sra/$$l.sra; \
-	-rm Input/SRA_datasets/$$l.fastq; \
-	-mkdir Output; \
+	rm -f ~/ncbi/public/sra/$$l.sra; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
+	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
+	samtools index Input/BAM_files/$$l.bam; \
 	done <Input/SraAccList.txt; \
 	echo "Processing SAM to BAM files and Indexing..."; \
-	for file in Input/SAM_files/*.sam; do \
-	echo "Converting, sorting and indexing $$file..."; \
-	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
-	file=$$(echo "$$file" | cut -d"." -f1); \
-	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/raw_BAM_files/$$file; \
-	samtools index Input/BAM_files/$$file.bam; \
-	done; \
 	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
 
 
