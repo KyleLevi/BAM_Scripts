@@ -4,6 +4,9 @@
 #  scripts included in this project.
 
 #---------------Bio 496, Mini Project 1, Initial Scan---------------
+init:
+    mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+
 initial_scan: bowtie2_index
     while read l; do \
 	echo "Downloading $$l"; \

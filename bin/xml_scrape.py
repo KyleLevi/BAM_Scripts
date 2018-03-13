@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-import urllib
+import urllib.request as ur
 import re
 from bs4 import BeautifulSoup
 
@@ -21,14 +21,14 @@ def run_to_xml_soup(sra_run_id, save_dir=None):
                 html = infile.read()
         else:
             url = "http://www.ncbi.nlm.nih.gov/Traces/sra/?run={}&experimental=1&retmode=xml".format(sra_run_id)
-            page = urllib.urlopen(url)
+            page = ur.urlopen(url)
             html = page.read()
             page.close()
             with open(save_dir + sra_run_id + '.xml', 'w') as outfile:
                 outfile.write(html)
     else:
         url = "http://www.ncbi.nlm.nih.gov/Traces/sra/?run={}&experimental=1&retmode=xml".format(sra_run_id)
-        page = urllib.urlopen(url)
+        page = ur.urlopen(url)
         html = page.read()
         page.close()
     xml_soup = BeautifulSoup(html, 'xml')
