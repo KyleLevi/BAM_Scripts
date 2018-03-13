@@ -70,6 +70,8 @@ if __name__ == '__main__':
     else:
         all_files = {}
         for fname in os.listdir(args.input):
+            if fname.endswith('.bai'):
+                continue
             all_files[fname] = genome_coverage_dict(args.input + fname)
         for fname, dict in all_files.items():
             sys.stdout.write(fname + '\n')
@@ -77,7 +79,7 @@ if __name__ == '__main__':
                 for k,v in dict.items():
                     sys.stdout.write('\t'.join(['', k, str(v), '\n']))
             else:
-                sys.stdout.write('Empty')
+                sys.stdout.write('Empty\n')
 
 
 

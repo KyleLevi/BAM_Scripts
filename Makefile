@@ -4,11 +4,12 @@
 #  scripts included in this project.
 
 #---------------Bio 496, Mini Project 1, Initial Scan---------------
-init:
-    -mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+setup:
+	-mkdir Input Output Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+	echo "Setup complete. Errors may have been generated for folders that already exist. This is normal."
 
 initial_scan: bowtie2_index
-    while read l; do \
+	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with Bowtie 2..."; \
