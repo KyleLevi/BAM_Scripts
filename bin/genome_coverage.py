@@ -1,6 +1,7 @@
 import sys
 import pysam
 import argparse
+import os
 import time
 
 def genome_coverage_dict(infile):
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Writes to standard out "Genome_Name\tPercent_Coverage" for each genome in a BAM file')
     parser.add_argument('-i', '--input', help='Name of the input .bam file to be read', required=True)
+    parser.add_argument('-r', '--dir', help='Add this flag if input is a directory of BAM files', action='store_true')
 
     try:
         args = parser.parse_args()
@@ -58,9 +60,34 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-    #t0 = time.time()
-    x = genome_coverage_dict(args.input)
-    #t = time.time()-t0
+    if not args.dir:
+        x = genome_coverage_dict(args.input)
+        for k,v in x.items():
+            sys.stdout.write('\t'.join([k,str(v),'\n']))
+    else:
+        all_files = {}
+        for fname in os.listdir(args.input):
+            all_files[fname] = genome_coverage_dict(args.input + fname)
+        for fname, dict in all_files.items():
+            sys.stdout.write(fname + '\n')
+            for k,v in dict.items():
+                sys.stdout.write('\t'.join(['', k, str(v), '\n']))
 
-    for k,v in x.items():
-        sys.stdout.write(','.join([k,str(v),'\n']))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

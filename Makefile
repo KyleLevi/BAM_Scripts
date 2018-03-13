@@ -1,7 +1,33 @@
-# This Makefile contains helpfull commands for downloading and analyzing data from the SRA.
+# This Makefile contains helpful commands for downloading and analyzing data from the SRA.
 # They can be run from the terminal by typing "make comand_name".  EX: Make BAM_stats
 # Even if you never use these commands here, they provide a good example of ways to use the python
 #  scripts included in this project.
+
+#---------------Bio 496, Mini Project 1, Initial Scan---------------
+initial_scan: bowtie2_index
+    while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
+	echo "Scanning $$l with Bowtie 2..."; \
+	bowtie2 -q -x Input/Genomes/all_genomes --no-unal  Input/SRA_datasets/$$l  -S Input/SAM_files/$$l.sam; \
+	echo "Scan Complete, Removing Data Sets"; \
+	-rm ~/ncbi/public/sra/$$l.sra; \
+	-rm Input/SRA_datasets/$$l.fastq; \
+	-mkdir Output; \
+	done <Input/SraAccList.txt; \
+	echo "Processing SAM to BAM files and Indexing..."; \
+	for file in Input/SAM_files/*.sam; do \
+	echo "Converting, sorting and indexing $$file..."; \
+	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
+	file=$$(echo "$$file" | cut -d"." -f1); \
+	samtools view -bS Input/SAM_files/$$file.sam | samtools sort - Input/raw_BAM_files/$$file; \
+	samtools index Input/BAM_files/$$file.bam; \
+	done; \
+	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
+
+
+
+#---------------Demos and Tests---------------
 
 test:
 	python bin/test_requirements.py
