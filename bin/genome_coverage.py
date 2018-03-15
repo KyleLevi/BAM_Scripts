@@ -79,7 +79,7 @@ if __name__ == '__main__':
                 for k,v in dict.items():
                     sys.stdout.write('\t'.join(['', k, str(v), '\n']))
             else:
-                sys.stdout.write('Empty\n')
+                sys.stdout.write('\tEmpty\n')
 
 
 
