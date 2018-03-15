@@ -10,8 +10,8 @@ setup:
 
 genome_download:
 	while read acc; do \
-	echo "Downloading: $acc"; \
-	(esearch -db nucleotide -query "$acc")<Input/Genomes/GenomeAccList.txt | efetch -format fasta > Input/Genomes/$acc.fasta; \
+	echo "Downloading: $$acc"; \
+	(esearch -db nucleotide -query "$$acc")<Input/Genomes/GenomeAccList.txt | efetch -format fasta > Input/Genomes/$$acc.fasta; \
 	done <Input/Genomes/GenomeAccList.txt; \
 
 
