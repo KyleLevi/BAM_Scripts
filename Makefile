@@ -9,7 +9,7 @@ setup:
 	echo "Setup complete. Errors may have been generated for folders that already exist. This is normal."
 
 genome_download:
-	while read acc; do; \
+	while read acc; do \
 	echo "Downloading: $acc"; \
 	(esearch -db nucleotide -query "$acc")<Input/Genomes/GenomeAccList.txt | efetch -format fasta > Input/Genomes/$acc.fasta; \
 	done <Input/Genomes/GenomeAccList.txt; \
