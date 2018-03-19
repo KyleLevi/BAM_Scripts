@@ -4,21 +4,38 @@ import os
 import sys
 import subprocess
 
-def sam_stats(infile, csvoutfile = None):
-
+def sam_to_bam(infile, outdir = None):
+    """
+    Converts a SAM file to a BAM file, sorts it, and Indexes it.
+    :param infile:
+    :param outdir:
+    :return:
+    """
 
     if infile.endswith('.sam'):
+        # Changing the output file name and location
         bamfile = infile.replace('.sam', '.bam')
-        print('Input is a SAM file, converting to BAM file')
-        subprocess.call(["samtools", "view", "-bS", infile],
-                        stdout=open(bamfile, 'w'))
-        print('done')
-        print('Sorting newly created BAM file...')
-        subprocess.call(["samtools", "sort",  bamfile, bamfile],)
-        print('done')
-        print('creating an index for BAM file...')
-        subprocess.call(["samtools", "index", bamfile, bamfile], )
-        print('done')
+        if outdir:
+            infile = infile.split('/')[-1].replace('.sam', '')
+            bamfile = outdir + infile + '.bam'
+
+        # These are the commands to be run, edit them here!
+        commands = [["samtools", "view", "-bS", infile],
+                    ["samtools", "sort", bamfile, bamfile.replace('.bam', '')],
+                    ["samtools", "index", bamfile, bamfile.replace('.bam', '')]]
+
+        for command in commands:
+            ret_code = subprocess.call(["samtools", "view", "-bS", infile], stdout=open(bamfile, 'w'))
+            if ret_code != 0:
+                print("Error running command \"{}\"\n".format(' '.join(command)))
+                return
+        return bamfile
+
+    else:
+        print('File: "{}" does not end with .sam, cannot convert to .bam'.format(infile))
+        return
+
+
 
 
 if __name__ == "__main__":
