@@ -8,15 +8,17 @@ def sam_stats(infile, csvoutfile = None):
 
 
     if infile.endswith('.sam'):
+        bamfile = infile.replace('.sam', '.bam')
         print('Input is a SAM file, converting to BAM file')
         subprocess.call(["samtools", "view", "-bS", infile],
-                        stdout=open(infile.replace('.sam', '') + '.bam', 'w'))
+                        stdout=open(bamfile, 'w'))
         print('done')
         print('Sorting newly created BAM file...')
-        subprocess.call(["samtools", "sort",  infile.replace('.sam', '.bam')],)
+        subprocess.call(["samtools", "sort",  bamfile, bamfile],)
         print('done')
         print('creating an index for BAM file...')
-        subprocess.call(["samtools", "index", infile.replace('.sam', '.bam')], )
+        subprocess.call(["samtools", "index", bamfile, bamfile], )
+        print('done')
 
 
 if __name__ == "__main__":
