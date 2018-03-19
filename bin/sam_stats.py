@@ -5,9 +5,13 @@ import sys
 import subprocess
 
 def sam_stats(infile, csvoutfile = None):
-    subprocess.call(["samtools", "view", "-bS", infile, "|" "samtools", "sort", "-", infile],
-                    stdout=open(infile.replace('.sam', '') + '.bam', 'w'))
-    print('.done.')
+
+
+    if infile.endswith('.sam'):
+        print('Input is a SAM file, converting to BAM file and sorting...')
+        subprocess.call(["samtools", "view", "-bS", infile, "|" "samtools", "sort", "-", infile],
+                        stdout=open(infile.replace('.sam', '') + '.bam', 'w'))
+        print('.done.')
 
 
 if __name__ == "__main__":
@@ -28,7 +32,10 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(1)
 
-
-    sam_stats(args.input)
+    if args.input.endswith('/'):
+        for f in os.listdir(args.input):
+            if not f.endswith('.sam'):
+                continue
+            sam_stats(args.input + f)
 
 
