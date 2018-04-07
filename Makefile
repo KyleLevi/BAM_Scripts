@@ -48,6 +48,8 @@ full_scan: bowtie2_index
 
 
 #---------------Demos and Tests---------------
+sam_stats:
+	python3 bin/sam_stats.py -i Input/SAM_files/
 
 test:
 	python bin/test_requirements.py
@@ -66,25 +68,25 @@ demo: clean
 # Runs bam_stats.py for each BAM file in Output/BAM_files/ and outputs to Output/BAM_stats_output.csv
 BAM_stats:
 	for f in Input/BAM_files/*.bam; do \
-	python bin/bam_stats.py -i $$f -o Output/BAM_stats_output.csv -l 50; \
+	python3 bin/bam_stats.py -i $$f -o Output/BAM_stats_output.csv -l 50; \
 	done
 
 # Turn your CSV files into heatmaps! Open this python file (bin/csv_to_heatmap.py) and
 #  edit lines 64-70 to change what the heatmap looks like.
 # Here is a good starting place for the Seaborn Heatmap: http://seaborn.pydata.org/generated/seaborn.heatmap.html
 coverage_depth_heatmap: coverage_depth_csv
-	python bin/csv_to_heatmap.py -i Output/coverage_depth.csv -o "Output/coverage_heatmap_$(date +"%d%b%H%M")"
+	python3 bin/csv_to_heatmap.py -i Output/coverage_depth.csv -o "Output/coverage_heatmap_$(date +"%d%b%H%M")"
 
 conserved_regions_heatmap: conserved_regions_csv
-	python bin/csv_to_heatmap.py -i Output/conserved_regions.csv -o "Output/conservation_heatmap_$(date +"%d%b%H%M")"
+	python3 bin/csv_to_heatmap.py -i Output/conserved_regions.csv -o "Output/conservation_heatmap_$(date +"%d%b%H%M")"
 
 # Makes a coverage depth CSV from BAM files for visualization
 coverage_depth_csv:
-	python bin/coverage_depth_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/coverage_depth.csv
+	python3 bin/coverage_depth_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/coverage_depth.csv
 
 # Makes a CSV file containing the conservation of each base
 conserved_regions_csv:
-	python bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
+	python3 bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
 
 
 #---------------Downloading SRA datasets and Generating BAM files---------------
