@@ -27,7 +27,7 @@ class Sam_Stats:
 
         self.input_files = input_files
 
-    @staticmethod
+    # @staticmethod
     def sam_to_bam(infile, outdir = None):
         """
         Converts a SAM file to a BAM file, sorts it, and Indexes it.
