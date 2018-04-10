@@ -6,6 +6,7 @@
 #---------------Bio 496, Mini Project 1, Initial Scan---------------
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
+	echo "SRR3403834\nSRR3403835" > Input/SraAccList.txt
 	echo "Setup complete. Errors may have been generated for folders that already exist. This is normal."
 
 genome_download:
@@ -45,12 +46,11 @@ full_scan: bowtie2_index
 	echo "Processing SAM to BAM files and Indexing..."; \
 	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
 
-initial_protein_scan: bowtie2_index protein_index
+full_protein_scan: protein_index
 	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with Bowtie 2..."; \
-	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
 	echo "Scan Complete, Removing Data Sets"; \
 	done <Input/SraAccList.txt; \
