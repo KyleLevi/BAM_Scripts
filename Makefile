@@ -45,7 +45,7 @@ full_scan: bowtie2_index
 	echo "Processing SAM to BAM files and Indexing..."; \
 	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
 
-initial_protein_scan:
+initial_protein_scan: bowtie2_index protein_index
 	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
@@ -164,7 +164,14 @@ only_SAM_files:
 bowtie2_index:
 	-rm Input/Genomes/all_genomes.*
 	cat Input/Genomes/*.fasta > Input/Genomes/all_genomes.fna
-	bowtie2-build Input/Genomes/all_genomes.fna Input/Genomes/all_genomes	
+	bowtie2-build Input/Genomes/all_genomes.fna Input/Genomes/all_genomes
+
+# Constructs a protein index using prerapsearch
+protein_index:
+	-rm Input/Proteins/all_proteins
+	cat Input/Proteins/*.fasta > Input/Genomes/all_prot.fasta
+	prerapsearch -d Input/Proteins/all_prot.fasta -n all_proteins
+
 
 # Downloads 100k reads from every run in SraAccList.txt (By default it will download reads 100,000 to 200,000 - 
 #  if there are less than 100,000 reads it will download nothing)
