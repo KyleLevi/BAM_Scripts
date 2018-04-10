@@ -53,6 +53,7 @@ initial_protein_scan:
 	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
 	echo "Scan Complete, Removing Data Sets"; \
+	done <Input/SraAccList.txt; \
 
 #---------------Demos and Tests---------------
 sam_stats:
