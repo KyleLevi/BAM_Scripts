@@ -53,6 +53,8 @@ full_protein_scan: protein_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
 	echo "Scan Complete, Removing Data Sets"; \
+	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
 #---------------Demos and Tests---------------
