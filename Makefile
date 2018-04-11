@@ -23,7 +23,7 @@ initial_scan: bowtie2_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
 	samtools index Input/BAM_files/$$l.bam; \
@@ -38,7 +38,7 @@ full_scan: bowtie2_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
 	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
 	samtools index Input/BAM_files/$$l.bam; \
@@ -53,7 +53,7 @@ full_protein_scan: protein_index
 	echo "Scanning $$l with Bowtie 2..."; \
 	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
 	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
@@ -64,7 +64,7 @@ initial_protein_scan: protein_index
 	echo "Scanning $$l with rapsearch 2..."; \
 	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
 	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l.sra.cache; \
+	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
