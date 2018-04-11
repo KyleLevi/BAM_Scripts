@@ -182,6 +182,7 @@ bowtie2_index:
 # Constructs a protein index using prerapsearch
 protein_index:
 	rm -f Input/Proteins/all.fna
+	rm -f Input/Proteins/all.fasta
 	cat Input/Proteins/*.fasta > Input/Proteins/all.fna
 	prerapsearch -d Input/Proteins/all.fna -n Input/Proteins/all_proteins
 
