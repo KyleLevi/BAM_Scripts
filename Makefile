@@ -183,7 +183,7 @@ bowtie2_index:
 protein_index:
 	-rm Input/Proteins/all_proteins
 	cat Input/Proteins/*.fasta > Input/Proteins/all_prot.fasta
-	prerapsearch -d Input/Proteins/all_prot.fasta -n all_proteins
+	prerapsearch -d Input/Proteins/all_prot.fasta -n Input/Proteins/all_proteins
 
 
 # Downloads 100k reads from every run in SraAccList.txt (By default it will download reads 100,000 to 200,000 - 
