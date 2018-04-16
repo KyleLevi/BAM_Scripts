@@ -6,7 +6,7 @@ import pysam
 
 class Sam_Reader:
 
-    def __init__(self, file_or_folder):
+    def __init__(self, file_or_folder, **kwargs):
         """
         Initialize with the path to a file or a folder. If a file is
         :param file_or_folder:
@@ -30,19 +30,25 @@ class Sam_Reader:
             input_files = [file_name if file_name.endswith('.bam') else self.sam_to_bam(file_name) for file_name in input_files]
         self.input_files = input_files
 
+        # Check if every BAM files has an index
+        #TODO
+
         # Check if every file can be opened and record genomes & lengths
         genome_lengths = {}
+        removed_files = []
 
         for f in self.input_files:
             try:
                 bamfile = pysam.AlignmentFile(f, 'rb')
             except Exception as e:
-                sys.stderr.write(
-                    'Infile {} could not be opened by pysam because...:\n{}\n'.format(f, e))
-                sys.exit(1)
+                sys.stderr.write('File {} could not be opened by pysam because...:\n{}\n'.format(f, e))
+                sys.stderr.write('Removing {} from input list and continuing.\n')
+                removed_files.append(f)
 
             for l, r in zip(bamfile.lengths, bamfile.references):
                 genome_lengths[r] = l
+        self.input_files = list(set(self.input_files)-set(removed_files))
+        self.broken_files = removed_files
         self.genome_lengths = genome_lengths
 
     def __str__(self):

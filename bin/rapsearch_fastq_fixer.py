@@ -28,7 +28,7 @@ if __name__ == '__main__':
             for line in infile:
                 i += 1
                 if i == 4:
-                    if line.startswith('+'):
+                    if line.startswith('+') or line.startswith('@'):
                         tmpfile.write(',' + line[1:])
                     i = 0
                     broken += 1
