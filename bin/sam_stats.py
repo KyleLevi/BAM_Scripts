@@ -46,7 +46,7 @@ class Sam_Reader:
         self.genome_lengths = genome_lengths
 
     def __str__(self):
-        return "{} BAM files: (use .input_files)\n{} Organisms: {}\n".format(len(self.input_files), len(self.genome_lengths.keys()), str(self.genome_lengths))
+        return "{} BAM file(s): (use .input_files)\n{} Organism(s)/Genome_Length {}\n".format(len(self.input_files), len(self.genome_lengths.keys()), str(self.genome_lengths))
 
     @staticmethod
     def sam_to_bam(infile, outdir = None):
@@ -160,6 +160,7 @@ class Sam_Reader:
         if kwargs['write_file']:
             sys.stdout.write(header)
         results = [header]
+
         for f in self.input_files:
             # if a specific file is specified and this file isn't it, continue
             if file_name != None and f != file_name:
@@ -167,8 +168,6 @@ class Sam_Reader:
             f_coverages = self.quick_percent_coverages(f, organism, min_cov_depth)
 
             for genome, stats in Sam_Reader.read_counts(f, min_read_len).items():
-
-
                 stats = [str(x) for x in stats]
                 line = '\t'.join([f, genome, str(f_coverages.get(genome, 'None')), stats[0], stats[1]]) + '\n'
                 if kwargs['write_file']:
@@ -176,11 +175,99 @@ class Sam_Reader:
                 results.append(line)
         return results
 
+    def per_base_stats(self, **kwargs):
+        """
 
-"""
+        :param kwargs:
+        :return:
+        """
+        # Setting Kwargs and defaults
+        kwargs['write_file'] = kwargs.get('write_file', False)
+        organism = kwargs.get('organism', None)
+        file_name = kwargs.get('file_name', None)
+        min_read_len = kwargs.get('min_read_length', 50)
+
+        if organism == None and len(self.genome_lengths.keys()) > 1:
+            sys.stderr.write("Organism name not specified for per_base_stats and more than one organism is present,\n"
+                             "try setting organism    .per_base_stats(organism=......)\n"
+                             "Available organism names are: {}".format(', '.join(self.genome_lengths.keys())))
+        else:
+            organism = list(self.genome_lengths.keys())[0]
+
+        header = '\t'.join(['file', 'genome', 'percent_coverage', 'total reads mapped',
+                            'reads mapped > {} bp'.format(min_read_len) + '\n'])
+
+
+        # Initialize a list for every position in the genome, with an empty dictionary
+        base_positions = [{"A": 0, "C": 0, "G": 0, "T": 0, "N": 0, "Gap": 0} for i in range(self.genome_lengths[organism])]
+
+
+        if kwargs['write_file']:
+            outfile = open(kwargs['write_file'], 'w')
+            header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N' 'Gap\n'])
+            outfile.write(header)
+
+        for f in self.input_files:
+            # if a specific file is specified and this file isn't it, continue
+            if file_name != None and f != file_name:
+                continue
+
+            bamfile = pysam.AlignmentFile(f, 'rb')
+            for p in bamfile.pileup(contig=organism):
+                for pilups in p.pileups:
+                    if pilups.query_position:
+                        bp = pilups.alignment.query_sequence[pilups.query_position]
+                    else:
+                        bp = 'Gap'
+                    base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
+                if kwargs['write_file']:
+                    pos_dict = base_positions[p.reference_pos]
+                    consensus = max(pos_dict, key=pos_dict.get)
+                    percent = float(pos_dict[consensus]) / sum(list(pos_dict.values()))
+                    line = [p.reference_pos, consensus, percent*100, pos_dict['A'], pos_dict['C'], pos_dict['G'], pos_dict['T'], pos_dict['N'], pos_dict['Gap']]
+                    line = [str(x) for x in line]
+                    line[-1] = line[-1] + '\n'
+                    outfile.write('\t'.join(line))
+
+
+        if kwargs['write_file']:
+            output_path = kwargs['write_file']
+            with open(output_path, 'w') as outfile:
+                header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N' 'Gap\n'])
+                outfile.write(header)
+                for index, pos_dict in enumerate(base_positions):
+                    consensus = max(pos_dict, key=pos_dict.get)
+                    try:
+                        percent = float(pos_dict[consensus]) / sum(list(pos_dict.values()))
+                    except:
+                        percent = 0.0
+                    line = [index, consensus, round(percent * 100, 2), pos_dict['A'], pos_dict['C'], pos_dict['G'],
+                            pos_dict['T'], pos_dict['N'], pos_dict['Gap']]
+                    line = [str(x) for x in line]
+                    line[-1] = line[-1] + '\n'
+                    outfile.write('\t'.join(line))
+
+        return base_positions
+
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-i', '--input', help='Input File', required=True)
+    parser.add_argument('-o', '--output', help='ouput directory')
     parser.add_argument('-n', help='Some Number', type=int)
     parser.add_argument('-v', help='Verbose', action='store_true')
-"""
+    try:
+        args = parser.parse_args()
+    except:
+        parser.print_help()
+        sys.exit(1)
+
+
+
+    data = Sam_Reader(args.input)
+    if not args.output:
+        args.output = ''
+    print(data)
+    data.per_base_stats( write_file=args.output )
