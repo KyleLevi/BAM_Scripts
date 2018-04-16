@@ -20,7 +20,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
 
-    tmp = args.imput + '.tmp'
+    tmp = args.input + '.tmp'
     with open(tmp, 'w') as tmpfile:
         with open(args.input, 'r') as infile:
             broken = 0
