@@ -27,8 +27,11 @@ if __name__ == '__main__':
             i = 0
             for line in infile:
                 i += 1
-                if i == 4 and line.startswith('+'):
-                    tmpfile.write(',' + line[1:])
+                if i == 4:
+                    if line.startswith('+'):
+                        tmpfile.write(',' + line[1:])
+                    i = 0
+                    broken += 1
                 else:
                     tmpfile.write(line)
     if broken == 0:
