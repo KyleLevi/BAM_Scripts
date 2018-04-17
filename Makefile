@@ -32,6 +32,8 @@ initial_diamond_scan: diamond_db
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
+	rm -f ~/ncbi/public/sra/$$l*; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
 	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
@@ -40,6 +42,8 @@ diamond_scan: diamond_db
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100000 -X 1100000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
+	rm -f ~/ncbi/public/sra/$$l*; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
 	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
@@ -49,6 +53,8 @@ full_diamond_scan: diamond_db
 	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
 	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
+	rm -f ~/ncbi/public/sra/$$l*; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
 initial_scan: bowtie2_index
