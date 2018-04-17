@@ -25,7 +25,7 @@ diamond_db:
 	diamond makedb --in Input/Proteins/all.fna -d Input/Proteins/all_diamond_db
 
 per_base_stats:
-    python3 bin/bam_stats.py -i Input/BAM_files -o Output/
+	python3 bin/bam_stats.py -i Input/BAM_files -o Output/
 
 initial_diamond_scan: diamond_db
 	while read l; do \
