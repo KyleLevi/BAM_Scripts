@@ -21,11 +21,11 @@ diamond_install:
 	sudo cp diamond /usr/bin/
 
 diamond_db:
-	cat Input/Proteins/*.fasta > all.fna
+	cat Input/Proteins/*.fasta > Input/Proteins/all.fna
 	diamond makedb --in Input/Proteins/all.fna -d Input/Proteins/all_diamond_db
 
 initial_diamond_scan: diamond_db
-    while read l; do \
+	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with deamond..."; \
