@@ -3,7 +3,7 @@
 # Even if you never use these commands here, they provide a good example of ways to use the python
 #  scripts included in this project.
 
-#---------------Bio 496, Mini Project 1, Initial Scan---------------
+#---------------Bio 496, Project ---------------
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
 	echo "SRR3403834\nSRR3403835" > Input/SraAccList.txt
@@ -15,6 +15,22 @@ genome_download:
 	(esearch -db nucleotide -query "$$acc")<Input/Genomes/GenomeAccList.txt | efetch -format fasta > Input/Genomes/$$acc.fasta; \
 	done <Input/Genomes/GenomeAccList.txt; \
 
+diamond_install:
+	wget http://github.com/bbuchfink/diamond/releases/download/v0.9.19/diamond-linux64.tar.gz
+	tar xzf diamond-linux64.tar.gz
+	sudo cp diamond /usr/bin/
+
+diamond_db:
+	cat Input/Proteins/*.fasta > all.fna
+	diamond makedb --in Input/Proteins/all.fna -d Input/Proteins/all_diamond_db
+
+initial_diamond_scan: diamond_db
+    while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
+	echo "Scanning $$l with deamond..."; \
+	diamond -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_results/$$l.m8; \
+	done <Input/SraAccList.txt; \
 
 initial_scan: bowtie2_index
 	while read l; do \
