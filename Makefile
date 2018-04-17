@@ -28,8 +28,8 @@ initial_diamond_scan: diamond_db
 	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
-	echo "Scanning $$l with deamond..."; \
-	diamond -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_results/$$l.m8; \
+	echo "Scanning $$l with diamond..."; \
+	diamond blastx -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
 initial_scan: bowtie2_index
