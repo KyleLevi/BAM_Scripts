@@ -210,12 +210,13 @@ class Sam_Reader:
 
         if kwargs['write_file']:
             outfile = open(kwargs['write_file'], 'w')
-            header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N' 'Gap\n'])
+            header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N', 'Gap\n'])
             outfile.write(header)
 
+    ### Using Pickle for now, just in case reading files fails
         import pickle
-        if 'save.p' in os.listdir():
-            pos_dict = pickle.load(open("save.p", "rb"))
+        if organism + "_temp.p" in os.listdir():
+            base_positions = pickle.load(open(organism + "_temp.p", "rb"))
         else:
 
             for f in self.input_files:
@@ -239,7 +240,7 @@ class Sam_Reader:
                         line = [str(x) for x in line]
                         line[-1] = line[-1] + '\n'
                         outfile.write('\t'.join(line))
-            pickle.dump(pos_dict, open("save.p", "wb"))
+            pickle.dump(base_positions, open("save.p", "wb"))
 
 
 

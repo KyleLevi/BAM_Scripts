@@ -24,12 +24,23 @@ diamond_db:
 	cat Input/Proteins/*.fasta > Input/Proteins/all.fna
 	diamond makedb --in Input/Proteins/all.fna -d Input/Proteins/all_diamond_db
 
+per_base_stats:
+    python3 bin/bam_stats.py -i Input/BAM_files -o Output/
+
 initial_diamond_scan: diamond_db
 	while read l; do \
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
 	diamond blastx -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_results/$$l.m8; \
+	done <Input/SraAccList.txt; \
+
+diamond_scan: diamond-db
+	while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ -N 100000 -X 1100000 --skip-technical --readids  --dumpbase --clip $$l; \
+	echo "Scanning $$l with diamond..."; \
+	diamond blastx -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
 initial_scan: bowtie2_index
@@ -120,11 +131,11 @@ conserved_regions_heatmap: conserved_regions_csv
 
 # Makes a coverage depth CSV from BAM files for visualization
 coverage_depth_csv:
-	python3 bin/coverage_depth_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/coverage_depth.csv
+	python3 bin/coverage_depth_csv.py --number-splits 500 -i Input/BAM_files/ -o Output/coverage_depth.csv
 
 # Makes a CSV file containing the conservation of each base
 conserved_regions_csv:
-	python3 bin/conservation_csv.py --number-splits 200 -i Output/split_BAM_files/ -o Output/conserved_regions.csv
+	python3 bin/conservation_csv.py --number-splits 500 -i Input/BAM_files/ -o Output/conserved_regions.csv
 
 
 #---------------Downloading SRA datasets and Generating BAM files---------------

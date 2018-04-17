@@ -31,7 +31,7 @@ def csv_to_numpy(csv_file):
                 stack = vstack((stack, x))  # Double (( )) on purpose
             except Exception as e:
                 if False:
-                    print 'Error: cannot vstack len:{}'.format(len(x))
+                    print('Error: cannot vstack len:{}'.format(len(x)))
     return stack
 
 
