@@ -213,34 +213,29 @@ class Sam_Reader:
             header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N', 'Gap\n'])
             outfile.write(header)
 
-    ### Using Pickle for now, just in case reading files fails
-        import pickle
-        if organism + "_temp.p" in os.listdir():
-            base_positions = pickle.load(open(organism + "_temp.p", "rb"))
-        else:
 
-            for f in self.input_files:
-                # if a specific file is specified and this file isn't it, continue
-                if file_name != None and f != file_name:
-                    continue
 
-                bamfile = pysam.AlignmentFile(f, 'rb')
-                for p in bamfile.pileup(contig=organism):
-                    for pilups in p.pileups:
-                        if pilups.query_position:
-                            bp = pilups.alignment.query_sequence[pilups.query_position]
-                        else:
-                            bp = 'Gap'
-                        base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
-                    if kwargs['write_file']:
-                        pos_dict = base_positions[p.reference_pos]
-                        consensus = max(pos_dict, key=pos_dict.get)
-                        percent = float(pos_dict[consensus]) / sum(list(pos_dict.values()))
-                        line = [p.reference_pos, consensus, percent*100, pos_dict['A'], pos_dict['C'], pos_dict['G'], pos_dict['T'], pos_dict['N'], pos_dict['Gap']]
-                        line = [str(x) for x in line]
-                        line[-1] = line[-1] + '\n'
-                        outfile.write('\t'.join(line))
-            pickle.dump(base_positions, open("save.p", "wb"))
+        for f in self.input_files:
+            # if a specific file is specified and this file isn't it, continue
+            if file_name != None and f != file_name:
+                continue
+
+            bamfile = pysam.AlignmentFile(f, 'rb')
+            for p in bamfile.pileup(contig=organism):
+                for pilups in p.pileups:
+                    if pilups.query_position:
+                        bp = pilups.alignment.query_sequence[pilups.query_position]
+                    else:
+                        bp = 'Gap'
+                    base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
+                if kwargs['write_file']:
+                    pos_dict = base_positions[p.reference_pos]
+                    consensus = max(pos_dict, key=pos_dict.get)
+                    percent = float(pos_dict[consensus]) / sum(list(pos_dict.values()))
+                    line = [p.reference_pos, consensus, percent*100, pos_dict['A'], pos_dict['C'], pos_dict['G'], pos_dict['T'], pos_dict['N'], pos_dict['Gap']]
+                    line = [str(x) for x in line]
+                    line[-1] = line[-1] + '\n'
+                    outfile.write('\t'.join(line))
 
 
 
