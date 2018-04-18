@@ -4,6 +4,9 @@
 #  scripts included in this project.
 
 #---------------Bio 496, Project ---------------
+protein_hits:
+	python3 bin/m8_hits.py -i Input/RAP_Results/ -o Output/RAP_Results.csv
+
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
 	echo "SRR3403834\nSRR3403835" > Input/SraAccList.txt
