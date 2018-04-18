@@ -245,9 +245,8 @@ class Sam_Reader:
 
 
         if kwargs['write_file']:
-            output_path = kwargs['write_file'] + '_{}.csv'.format(organism)
-            with open(output_path, 'w') as outfile:
-                header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N' 'Gap\n'])
+            with open(kwargs['write_file'], 'w') as outfile:
+                header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N', 'Gap\n'])
                 outfile.write(header)
                 for index, pos_dict in enumerate(base_positions):
                     consensus = max(pos_dict, key=pos_dict.get)
