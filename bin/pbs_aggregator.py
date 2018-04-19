@@ -67,14 +67,15 @@ if __name__ == '__main__':
                 line = line.replace('\n', '').split('\t')
                 try:
                     pos = int(line[0])
+
+                    positions[pos][0] += int(line[3])
+                    positions[pos][1] += int(line[4])
+                    positions[pos][2] += int(line[5])
+                    positions[pos][3] += int(line[6])
+                    positions[pos][4] += int(line[7])
+                    positions[pos][5] += int(line[8])
                 except:
                     continue
-                positions[pos][0] += int(line[3])
-                positions[pos][1] += int(line[4])
-                positions[pos][2] += int(line[5])
-                positions[pos][3] += int(line[6])
-                positions[pos][4] += int(line[7])
-                positions[pos][5] += int(line[8])
     with open(args.outfile, 'w') as outfile:
         outfile.write(header)
         mapping = {0: 'A', 1: 'C', 2: 'G', 3: 'T', 4: 'N', 5: 'Gap'}
