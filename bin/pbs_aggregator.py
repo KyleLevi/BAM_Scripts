@@ -65,7 +65,10 @@ if __name__ == '__main__':
                     header = line
                     continue
                 line = line.replace('\n', '').split('\t')
-                pos = int(line[0])
+                try:
+                    pos = int(line[0])
+                except:
+                    continue
                 positions[pos][0] += int(line[3])
                 positions[pos][1] += int(line[4])
                 positions[pos][2] += int(line[5])
@@ -85,3 +88,5 @@ if __name__ == '__main__':
             line = [str(x) for x in line]
             line[-1] = line[-1] + '\n'
             outfile.write('\t'.join(line))
+
+
