@@ -276,6 +276,6 @@ if __name__ == '__main__':
 
     data = Sam_Reader(args.input)
     if not args.output:
-        args.output = ''
+        args.output = 'Output/Samfile_stats.csv'
     print(data)
     data.per_base_stats( write_file=args.output )

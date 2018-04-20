@@ -69,7 +69,40 @@ class M8_Reader:
                         continue
                     yield match
 
-    def protein_stats(self):
+    def protein_pilups(self, **kwargs):
+        proteins = {}
+        print("reading in all matches, this could take some time...")
+        for match in self.matches(**kwargs):
+            proteins[match.protein] = proteins.get(match.protein, Protein_Pileup(match.protein)).add_match(match)
+        for prot_id, pp in proteins.items():
+            yield pp
+
+class Protein_Pileup:
+
+    def __init__(self, protein):
+        self.protein = protein
+        self.positions = []
+
+    def __str__(self):
+        return '\n'.join(self.positions)
+
+    def add_match(self, match):
+        j = 0
+        print(match)
+        if match.send > len(self.positions):
+            for k in range(match.send - len(self.positions)):
+                self.positions.append({})
+        for i in range(match.sstart, match.send):
+            if i > len(self.positions):
+                for k in range(i - len(self.positions)+1):
+                    self.positions.append({})
+            try:
+                residue = match.qprot[j]
+            except:
+                residue = 'Gap'
+            self.positions[i][residue] = self.positions[i].get(residue, 0) + 1
+            j += 1
+        return self
 
 
 class Match:
@@ -115,23 +148,16 @@ class Match:
 
 
 data = M8_Reader("t/")
-for match in data.matches():
-    if match.evalue < .0000000001:
-        print(match.qprot)
-        print(match.sprot)
-# print(data.hits())
+for pp in data.protein_pilups(protein='Ga0123724_112393'):
+    for idx, dict in enumerate(pp.positions):
+        try:
+            consensus = max(dict, key=dict.get)
+        except:
+            consensus = '-'
+        total = sum(dict.values())
+        spread = {k:(round(v/total, 3)) for k,v in dict.items()}
+        line = [idx, sum(dict.values()),consensus, ', '.join([str(((l,spread[l]))) for l in sorted(spread, key=spread.get, reverse=True)])]
+        line = [str(x) for x in line]
+        print('\t'.join(line))
 
-"""
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('-i', '--input', help='Input File', required=True)
-    parser.add_argument('-n', help='Some Number', type=int)
-    parser.add_argument('-v', help='Verbose', action='store_true')
-
-    try:
-        args = parser.parse_args()
-    except:
-        parser.print_help()
-        sys.exit(1)
-"""
 
