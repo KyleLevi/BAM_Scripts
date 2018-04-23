@@ -118,7 +118,7 @@ sam_stats:
 	python3 bin/sam_stats.py -i Input/SAM_files/ -o Output/per_base_stats.csv
 
 protein_stats:
-    python3 bin/m8_stats.py -i Input/RAP_Results/ -o Output/
+	python3 bin/m8_stats.py -i Input/RAP_Results/ -o Output/
 
 
 
