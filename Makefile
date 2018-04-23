@@ -115,7 +115,12 @@ initial_protein_scan: protein_index
 
 #---------------Demos and Tests---------------
 sam_stats:
-	python3 bin/sam_stats.py -i Input/SAM_files/
+	python3 bin/sam_stats.py -i Input/SAM_files/ -o Output/per_base_stats.csv
+
+protein_stats:
+    python3 bin/m8_stats.py -i Input/RAP_Results/ -o Output/
+
+
 
 test:
 	python bin/test_requirements.py

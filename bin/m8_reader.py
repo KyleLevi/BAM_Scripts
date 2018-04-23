@@ -88,7 +88,6 @@ class Protein_Pileup:
 
     def add_match(self, match):
         j = 0
-        print(match)
         if match.send > len(self.positions):
             for k in range(match.send - len(self.positions)):
                 self.positions.append({})
@@ -147,17 +146,5 @@ class Match:
         return "\t".join([str(x) for x in line])
 
 
-data = M8_Reader("t/")
-for pp in data.protein_pilups(protein='Ga0123724_112393'):
-    for idx, dict in enumerate(pp.positions):
-        try:
-            consensus = max(dict, key=dict.get)
-        except:
-            consensus = '-'
-        total = sum(dict.values())
-        spread = {k:(round(v/total, 3)) for k,v in dict.items()}
-        line = [idx, sum(dict.values()),consensus, ', '.join([str(((l,spread[l]))) for l in sorted(spread, key=spread.get, reverse=True)])]
-        line = [str(x) for x in line]
-        print('\t'.join(line))
 
 
