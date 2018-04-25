@@ -145,7 +145,7 @@ class Sam_Reader:
                 return {'None': 0}
         return organism_coverage
 
-    def stats(self, **kwargs):
+    def hits(self, **kwargs):
         """
         File  |  Genome  |  Percent Coverage  |  Total Mapped Reads  |  Mapped Reads > 50 bp
 
@@ -153,32 +153,35 @@ class Sam_Reader:
         :return:
         """
         # Setting Kwargs and defaults
-        if kwargs.get('write_file', False):
-            sys.stdout = open(kwargs['write_file'], 'w')
-        else:
-            kwargs['write_file'] = False
+
         organism = kwargs.get('organism', None)
-        file_name = kwargs.get('file_name', None)
+        only_this_file = kwargs.get('file_name', None)
         min_read_len = kwargs.get('min_read_length', 50)
         min_cov_depth = kwargs.get('min_coverage_depth', 1)
 
-        header = '\t'.join(['file', 'genome', 'percent_coverage', 'total reads mapped', 'reads mapped > {} bp'.format(min_read_len) + '\n'])
-        if kwargs['write_file']:
-            sys.stdout.write(header)
-        results = [header]
-
+        header = ['file', 'genome', 'percent_coverage', 'total reads mapped', 'reads mapped > {} bp'.format(min_read_len)]
+        results = []
         for f in self.input_files:
             # if a specific file is specified and this file isn't it, continue
-            if file_name != None and f != file_name:
+            if only_this_file != None and f != only_this_file:
                 continue
             f_coverages = self.quick_percent_coverages(f, organism, min_cov_depth)
 
             for genome, stats in Sam_Reader.read_counts(f, min_read_len).items():
-                stats = [str(x) for x in stats]
-                line = '\t'.join([f, genome, str(f_coverages.get(genome, 'None')), stats[0], stats[1]]) + '\n'
-                if kwargs['write_file']:
-                    sys.stdout.write(line)
+                line = [f, genome, round(f_coverages.get(genome, 'None'), 1), stats[0], stats[1]]
                 results.append(line)
+
+        if kwargs.get('write_file', False):
+            if len(results) < 1:
+                print("no results?")
+                return
+
+            with open(kwargs['write_file'], 'w') as outfile:
+                outfile.write('\t'.join(header) + '\n')
+                for line in results:
+                    line = [str(x) for x in line]
+                    line = '\t'.join(line)
+                    outfile.write(line + '\n')
         return results
 
     def per_base_stats(self, **kwargs):

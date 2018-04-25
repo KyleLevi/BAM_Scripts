@@ -125,9 +125,11 @@ medium_protein_scan: protein_index
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
-#---------------Demos and Tests---------------
 sam_stats:
-	python3 bin/sam_stats.py -i Input/SAM_files/ -o Output/per_base_stats.csv
+	python3 bin/sam_stats.py -i Input/BAM_files/ -o Output/per_base_stats.csv
+
+sam_hits:
+    python3 bin/sam_hits.py -i Input/BAM_files/ -o Output/BAM_hits.csv
 
 protein_stats:
 	python3 bin/m8_stats.py -i Input/RAP_Results/ -o Output/
