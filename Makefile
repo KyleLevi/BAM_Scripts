@@ -175,12 +175,13 @@ conserved_regions_csv:
 #---------------Downloading SRA datasets and Generating BAM files---------------
 
 #Makes split BAM files in the OUTPUT folder from BAM files in INPUT folder
-split_BAM_files: raw_BAM_files
-	for file in Input/raw_BAM_files/*.bam; do \
+split_BAM_files:
+	mkdir Input/split_BAM_files/
+	for file in Input/BAM_files/*.bam; do \
 	echo "Splitting $$file, and writing to Output/split_BAM_files ..."; \
 	file=$$(echo "$$file" | rev | cut -d"/" -f1 | rev); \
 	file=$$(echo "$$file" | cut -d"." -f1); \
-	python bin/split_bam.py -i Input/raw_BAM_files/$$file.bam -o Output/split_BAM_files/ -l 50; \
+	python bin/split_bam.py -i Input/BAM_files/$$file.bam -o Output/split_BAM_files/ -l 50; \
 	done
 	echo "Indexing BAM files in Output/split_BAM_files..." ; \
 	for file in Output/split_BAM_files/*.bam; do \
