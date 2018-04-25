@@ -113,6 +113,18 @@ initial_protein_scan: protein_index
 	rm -f Input/SRA_datasets/$$l.fastq; \
 	done <Input/SraAccList.txt; \
 
+medium_protein_scan: protein_index
+	while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ --skip-technical  -X 10000000 --readids  --dumpbase --clip $$l; \
+	python3 bin/rapsearch_fastq_fixer.py -i Input/SRA_datasets/$$l; \
+	echo "Scanning $$l with rapsearch 2..."; \
+	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
+	echo "Scan Complete, Removing Data Sets"; \
+	rm -f ~/ncbi/public/sra/$$l*; \
+	rm -f Input/SRA_datasets/$$l.fastq; \
+	done <Input/SraAccList.txt; \
+
 #---------------Demos and Tests---------------
 sam_stats:
 	python3 bin/sam_stats.py -i Input/SAM_files/ -o Output/per_base_stats.csv
