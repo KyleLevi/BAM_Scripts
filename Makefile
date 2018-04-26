@@ -4,8 +4,7 @@
 #  scripts included in this project.
 
 #---------------Bio 496, Project ---------------
-protein_hits:
-	python3 bin/m8_hits.py -i Input/RAP_Results/ -o Output/RAP_Results.csv
+
 
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
@@ -126,13 +125,16 @@ medium_protein_scan: protein_index
 	done <Input/SraAccList.txt; \
 
 sam_stats:
-	python3 bin/sam_stats.py -i Input/BAM_files/ -o Output/per_base_stats.csv
+	python3 bin/sam_stats.py -i Input/BAM_files/ -o Output/
 
 sam_hits:
-    python3 bin/sam_hits.py -i Input/BAM_files/ -o Output/BAM_hits.csv
+	python3 bin/sam_hits.py -i Input/BAM_files/ -o Output/BAM_hits.csv
 
 protein_stats:
 	python3 bin/m8_stats.py -i Input/RAP_Results/ -o Output/
+
+protein_hits:
+	python3 bin/m8_hits.py -i Input/RAP_Results/ -o Output/protein_hits.csv
 
 
 

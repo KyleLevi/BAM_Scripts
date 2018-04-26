@@ -194,56 +194,50 @@ class Sam_Reader:
         kwargs['write_file'] = kwargs.get('write_file', False)
         organism = kwargs.get('organism', None)
         file_name = kwargs.get('file_name', None)
-        min_read_len = kwargs.get('min_read_length', 50)
 
         if organism == None and len(self.genome_lengths.keys()) > 1:
             sys.stderr.write("Organism name not specified for per_base_stats and more than one organism is present,\n"
-                             "try setting organism    .per_base_stats(organism=......)\n"
                              "Available organism names are: {}".format(', '.join(self.genome_lengths.keys())))
+            organism = input("\n\nOrganism name not specified for .per_base_stats(organism=...) and more than one organism is present,\n"+
+                             "Enter the name of an organism to analyze. (available names listed above):\n")
+
         else:
             organism = list(self.genome_lengths.keys())[0]
 
-        header = '\t'.join(['file', 'genome', 'percent_coverage', 'total reads mapped',
-                            'reads mapped > {} bp'.format(min_read_len) + '\n'])
-
+        if organism == 'all':
+            sys.stdout.write("All Organisms chosen, this could take a long time and a lot of memory. I hope you know what you are doing...\n")
+            all_d = {}
+            for organism in self.genome_lengths.keys():
+                all_d[organism] = self.per_base_stats(organism=organism, write_file=kwargs['write_file'])
+            return all_d
 
         # Initialize a list for every position in the genome, with an empty dictionary
         base_positions = [{"A": 0, "C": 0, "G": 0, "T": 0, "N": 0, "Gap": 0} for i in range(self.genome_lengths[organism])]
-
-
-        if kwargs['write_file']:
-            outfile = open(kwargs['write_file'], 'w')
-            header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N', 'Gap\n'])
-            outfile.write(header)
-
-
-
+        empty = True
+        # Loop over each file and add each base to the correct position in base_positions
         for f in self.input_files:
-            # if a specific file is specified and this file isn't it, continue
-            if file_name != None and f != file_name:
+            try:
+                # if a specific file is specified and this file isn't it, continue
+                if file_name != None and f != file_name:
+                    continue
+
+                bamfile = pysam.AlignmentFile(f, 'rb')
+                for p in bamfile.pileup(contig=organism):
+                    for pilups in p.pileups:
+                        if pilups.query_position:
+                            bp = pilups.alignment.query_sequence[pilups.query_position]
+                        else:
+                            bp = 'Gap'
+                        base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
+                        empty = False
+            except Exception as e:
+                sys.stderr.write('{}\nReading file: {} failed for Organism: {} -- skipping.\n'.format(e, file_name, organism))
                 continue
 
-            bamfile = pysam.AlignmentFile(f, 'rb')
-            for p in bamfile.pileup(contig=organism):
-                for pilups in p.pileups:
-                    if pilups.query_position:
-                        bp = pilups.alignment.query_sequence[pilups.query_position]
-                    else:
-                        bp = 'Gap'
-                    base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
-                if kwargs['write_file']:
-                    pos_dict = base_positions[p.reference_pos]
-                    consensus = max(pos_dict, key=pos_dict.get)
-                    percent = float(pos_dict[consensus]) / sum(list(pos_dict.values()))
-                    line = [p.reference_pos, consensus, percent*100, pos_dict['A'], pos_dict['C'], pos_dict['G'], pos_dict['T'], pos_dict['N'], pos_dict['Gap']]
-                    line = [str(x) for x in line]
-                    line[-1] = line[-1] + '\n'
-                    outfile.write('\t'.join(line))
-
-
-
         if kwargs['write_file']:
-            with open(kwargs['write_file'], 'w') as outfile:
+            if empty:
+                print('\n\nempty')
+            with open(kwargs['write_file'] + organism + '.csv', 'w') as outfile:
                 header = "\t".join(['Position', 'Consensus', 'Percent', 'A', 'C', 'G', 'T', 'N', 'Gap\n'])
                 outfile.write(header)
                 for index, pos_dict in enumerate(base_positions):
@@ -266,7 +260,7 @@ class Sam_Reader:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-i', '--input', help='Input File', required=True)
-    parser.add_argument('-o', '--output', help='ouput directory')
+    parser.add_argument('-o', '--output', help='output directory')
     parser.add_argument('-n', help='Some Number', type=int)
     parser.add_argument('-v', help='Verbose', action='store_true')
     try:
@@ -276,9 +270,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
 
-
     data = Sam_Reader(args.input)
     if not args.output:
-        args.output = 'Output/Samfile_stats.csv'
-    print(data)
-    data.per_base_stats( write_file=args.output )
+        args.outpt=None
+
+    data.per_base_stats(write_file=args.output)
