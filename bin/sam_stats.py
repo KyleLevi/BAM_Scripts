@@ -98,7 +98,7 @@ class Sam_Reader:
     @staticmethod
     def read_counts(bam_file_name, n=50):
 
-        bamfile = pysam.AlignmentFile(bam_file_name, 'rb')
+        bamfile = pysam.AlignmentFile(bam_file_name, 'rb', check_sq=False)
         stats_dict = {}  # {genome_name: [total_reads_mapped, reads > n base pairs long]}
         for read in bamfile.fetch():
             if not read.reference_name in stats_dict:
@@ -112,7 +112,7 @@ class Sam_Reader:
         return stats_dict
 
     def quick_percent_coverages(self, bam_file_name, organism=None, MIN_POSITIONAL_COVERAGE=1):
-        bamfile = pysam.AlignmentFile(bam_file_name, 'rb')
+        bamfile = pysam.AlignmentFile(bam_file_name, 'rb', check_sq=False)
 
         # Loop over every read, and calculate coverage an organism if it's the first read found
         organism_coverage = {}
