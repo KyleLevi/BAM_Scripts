@@ -1,1 +1,1 @@
-Delete this line and paste your SRA Run ID's here (each ID should be on it's own line)
+Paste your SRA Accession IDS here (and erase this line)

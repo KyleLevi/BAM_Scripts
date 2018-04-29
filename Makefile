@@ -8,7 +8,6 @@
 
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
-	echo "SRR3403834\nSRR3403835" > Input/SraAccList.txt
 	echo "Setup complete. Errors may have been generated for folders that already exist. This is normal."
 
 genome_download:
