@@ -62,7 +62,10 @@ class M8_Reader:
                 if only_this_file != None and only_this_file != f:
                     continue
                 for line in infile:
-                    match = Match(line)
+                    try:
+                        match = Match(line)
+                    except:
+                        continue
                     if no_stops and '*' in match.qprot:
                         continue
                     if only_this_protein != None and only_this_protein != match.protein:

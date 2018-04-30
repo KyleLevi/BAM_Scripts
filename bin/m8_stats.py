@@ -24,7 +24,6 @@ if __name__ == '__main__':
     if not args.output.endswith('/') and len(args.output) != 0:
         args.output = args.output + '/'
     data = M8_Reader(args.input)
-    print(data)
     for pp in data.protein_pilups():
         outfile = open(args.output + pp.protein + '.csv', 'w')
         for idx, dict in enumerate(pp.positions):
