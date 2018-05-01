@@ -65,6 +65,7 @@ class M8_Reader:
                     try:
                         match = Match(line)
                     except:
+                        print("Line reading failure, does it contain N?".format(line))
                         continue
                     if no_stops and '*' in match.qprot:
                         continue
@@ -140,7 +141,7 @@ class Match:
         self.bitscore = float(line[10])
         self.sprot = line[11]
         self.qseq = line[12]
-        self.qprot = ''.join([Match.CODON_TABLE[self.qseq[i:i+3]] for i in range(0,len(self.qseq), 3)])
+        self.qprot = ''.join([Match.CODON_TABLE[self.qseq[i:i+3]] for i in range(0,len(self.qseq)-2, 3)])
 
 
 
