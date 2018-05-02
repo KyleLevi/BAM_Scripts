@@ -6,7 +6,7 @@
 #---------------Bio 496, Project ---------------
 
 protein_hits_by_organism:
-	python3 hits_by_organism.py
+	python3 bim/hits_by_organism.py
 
 setup:
 	-mkdir Input Output Input/Proteins Input/RAP_Results Input/BAM_files Input/Genomes Input/SAM_files Input/SRA_datasets Input/xml_metadata
