@@ -33,9 +33,9 @@ initial_diamond_scan: diamond_db
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100001 -X 200000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
+	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
-	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
 diamond_scan: diamond_db
@@ -43,9 +43,9 @@ diamond_scan: diamond_db
 	echo "Downloading $$l"; \
 	fastq-dump --outdir Input/SRA_datasets/ -N 100000 -X 1100000 --skip-technical --readids  --dumpbase --clip $$l; \
 	echo "Scanning $$l with diamond..."; \
+	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	rm -f ~/ncbi/public/sra/$$l*; \
 	rm -f Input/SRA_datasets/$$l.fastq; \
-	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
 	done <Input/SraAccList.txt; \
 
 full_diamond_scan: diamond_db
@@ -87,41 +87,6 @@ full_scan: bowtie2_index
 	done <Input/SraAccList.txt; \
 	echo "Processing SAM to BAM files and Indexing..."; \
 	python3 bin/genome_coverage.py -r -i Input/BAM_files/ > Output/genome_coverage.tsv; \
-
-full_protein_scan: protein_index
-	while read l; do \
-	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
-	python3 bin/rapsearch_fastq_fixer.py -i Input/SRA_datasets/$$l; \
-	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
-	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l*; \
-	rm -f Input/SRA_datasets/$$l.fastq; \
-	done <Input/SraAccList.txt; \
-
-initial_protein_scan: protein_index
-	while read l; do \
-	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/SRA_datasets/ --skip-technical -N 100001 -X 200000 --readids  --dumpbase --clip $$l; \
-	python3 bin/rapsearch_fastq_fixer.py -i Input/SRA_datasets/$$l; \
-	echo "Scanning $$l with rapsearch 2..."; \
-	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
-	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l*; \
-	rm -f Input/SRA_datasets/$$l.fastq; \
-	done <Input/SraAccList.txt; \
-
-medium_protein_scan: protein_index
-	while read l; do \
-	echo "Downloading $$l"; \
-	fastq-dump --outdir Input/SRA_datasets/ --skip-technical  -X 10000000 --readids  --dumpbase --clip $$l; \
-	python3 bin/rapsearch_fastq_fixer.py -i Input/SRA_datasets/$$l; \
-	echo "Scanning $$l with rapsearch 2..."; \
-	rapsearch -q Input/SRA_datasets/$$l.fastq -d Input/Proteins/all_proteins -o Input/RAP_Results/$$l -p Input/RAP_Results/$$l  -z 4  -a T; \
-	echo "Scan Complete, Removing Data Sets"; \
-	rm -f ~/ncbi/public/sra/$$l*; \
-	rm -f Input/SRA_datasets/$$l.fastq; \
-	done <Input/SraAccList.txt; \
 
 sam_stats:
 	python3 bin/sam_stats.py -i Input/BAM_files/ -o Output/
