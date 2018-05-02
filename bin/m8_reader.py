@@ -29,6 +29,8 @@ class M8_Reader:
             if not path_to_m8_files.endswith('/'):
                 path_to_m8_files = path_to_m8_files + '/'
             for f in os.listdir(path_to_m8_files):
+                if not f.endswith('.m8'):
+                    continue
                 self.input_files.append(path_to_m8_files + f)
         self.header = ['qseqid', 'sseqid', 'pident', 'length', 'mismatch', 'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore', 'protein', 'match']
 
@@ -47,10 +49,13 @@ class M8_Reader:
             file_stats[f] = {}
             with open(f, 'r') as infile:
                 for line in infile:
-                    line = line.split('\t')
+                    line = line.replace('\n','').split('\t')
                     if only_this_protein != None and line[1] != only_this_protein:
                         continue
-                    file_stats[f][line[1]] = file_stats[f].get(line[1], 0) + 1
+                    try:
+                        file_stats[f][line[1]] = file_stats[f].get(line[1], 0) + 1
+                    except:
+                        continue
         return file_stats
 
     def matches(self, **kwargs):
