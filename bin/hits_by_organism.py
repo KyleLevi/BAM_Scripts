@@ -29,5 +29,5 @@ if __name__ == '__main__':
             line=line.replace('\n', '').split(delim)
             organisms[line[1]] = organisms.get(line[1], 0) + int(line[2])
     with open(args.output, 'w') as outfile:
-        for k, v in organisms.items():
-            outfile.write(delim.join([str(k),str(v)]) + '\n')
+        for k in sorted(organisms, key=organisms.get, reverse=True):
+            outfile.write(delim.join([str(k),str(organisms[k])]) + '\n')

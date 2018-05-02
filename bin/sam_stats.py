@@ -168,7 +168,7 @@ class Sam_Reader:
             f_coverages = self.quick_percent_coverages(f, organism, min_cov_depth)
 
             for genome, stats in Sam_Reader.read_counts(f, min_read_len).items():
-                line = [f, genome, round(f_coverages.get(genome, 0), 1), stats[0], stats[1]]
+                line = [f, genome, round(f_coverages.get(genome,0), 1), stats[0], stats[1]]
                 results.append(line)
 
         if kwargs.get('write_file', False):
