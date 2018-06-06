@@ -11,6 +11,8 @@ class Sam_Reader:
         Initialize with the path to a file or a folder. If a file is
         :param file_or_folder:
         """
+        convert = kwargs.get('convert', True)
+        check_files = kwargs.get('check_files', True)
 
         # Generate a list of files in dir, and convert sam to bam
         if not os.path.isdir(file_or_folder):
@@ -42,17 +44,27 @@ class Sam_Reader:
                 bamfile = pysam.AlignmentFile(f, 'rb')
             except Exception as e:
                 sys.stderr.write('File {} could not be opened by pysam because...:\n{}\n'.format(f, e))
-                sys.stderr.write('Removing {} from input list and continuing.\n')
+                sys.stderr.write('Removing {} from input list and continuing.\n'.format(f))
                 removed_files.append(f)
+                continue
 
             for l, r in zip(bamfile.lengths, bamfile.references):
                 genome_lengths[r] = l
+            if not check_files:
+                break
         self.input_files = list(set(self.input_files)-set(removed_files))
         self.broken_files = removed_files
         self.genome_lengths = genome_lengths
 
     def __str__(self):
         return "{} BAM file(s): (use .input_files)\n{} Organism(s)/Genome_Length {}\n".format(len(self.input_files), len(self.genome_lengths.keys()), str(self.genome_lengths))
+
+    def remove_short_reads(self, new_dir = None, min_length = 50):
+        """
+        Reads in each bamfile and removes an reads less than min length and writes them to a new file
+        :param min_length:
+        :return:
+        """
 
     @staticmethod
     def sam_to_bam(infile, outdir = None):
@@ -119,10 +131,10 @@ class Sam_Reader:
         for read in bamfile.fetch():
             genome_name = read.reference_name
             if genome_name in organism_coverage:
-                print('exists')
+                # print('exists')
                 continue
             if organism != None and organism != genome_name:
-                print('specified and not{}{}'.format(genome_name,organism))
+                # print('specified and not{}{}'.format(genome_name,organism))
                 continue
 
             # Process one organism
@@ -194,6 +206,7 @@ class Sam_Reader:
         kwargs['write_file'] = kwargs.get('write_file', False)
         organism = kwargs.get('organism', None)
         file_name = kwargs.get('file_name', None)
+        min_len = kwargs.get('min_len', 50)
 
         if organism == None and len(self.genome_lengths.keys()) > 1:
             sys.stderr.write("Organism name not specified for per_base_stats and more than one organism is present,\n"
@@ -227,7 +240,7 @@ class Sam_Reader:
                         if pilups.query_position:
                             bp = pilups.alignment.query_sequence[pilups.query_position]
                         else:
-                            bp = 'Gap'
+                            bp = '-'
                         base_positions[p.reference_pos][bp] = base_positions[p.reference_pos].get(bp, 0) + 1
                         empty = False
             except Exception as e:
@@ -253,6 +266,34 @@ class Sam_Reader:
                     outfile.write('\t'.join(line))
 
         return base_positions
+
+    def reads(self, **kwargs):
+        """
+        For a full list of things to do with yielded reads:
+        http://pysam.readthedocs.io/en/latest/api.html#pysam.AlignedSegment
+        :param kwargs: organism, min_read_len, only_this_file
+        :return:
+        """
+        organism = kwargs.get('organism', None)
+        only_this_file = kwargs.get('file_name', None)
+        min_read_len = kwargs.get('min_len', None)
+        verb = kwargs.get('verbose', False)
+
+        for bam_file_name in self.input_files:
+            if only_this_file != None and bam_file_name != only_this_file:
+                continue
+            bamfile = pysam.AlignmentFile(bam_file_name, 'rb', check_sq=False)
+            if verb:
+                print('Opening file: {}'.format(bam_file_name))
+            for read in bamfile.fetch():
+                if organism is not None and read.reference_name != organism:
+                    continue
+                if min_read_len != None and read.infer_query_length() < min_read_len:
+                    continue
+                yield read
+
+
+
 
 
 
