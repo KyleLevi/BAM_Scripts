@@ -292,8 +292,37 @@ class Sam_Reader:
                     continue
                 yield read
 
+    def write_reads(self, new_filename, **kwargs):
+        organism = kwargs.get('organism', None)
+        only_this_file = kwargs.get('file_name', None)
+        min_read_len = kwargs.get('min_len', None)
 
+        out = pysam.Samfile(new_filename, 'w', template=pysam.AlignmentFile(self.input_files[0]))
+        for read in self.reads(min_len=30, organism=organism, only_this_file=only_this_file, verbose=True):
+            out.write(read)
 
+        if not new_filename.endswith('.sam'):
+            new_filename = new_filename + '.sam'
+        bamfile = new_filename.replace('.sam', '.bam')
+
+        # These are the commands to be run, edit them here!
+        convert_to_bam = ["samtools", "view", "-bS", new_filename]
+        sort_bamfile = ["samtools", "sort", bamfile, bamfile.replace('.bam', '')]
+        index_bamfile = ["samtools", "index", bamfile, bamfile.replace('.bam', '.bai')]
+
+        sys.stdout.write('Converting {} to BAM file, sorting, and indexing...'.format(infile))
+        ret_code = subprocess.call(convert_to_bam, stdout=open(bamfile, 'w'))
+        if ret_code != 0:
+            sys.stderr.write("Error running command \"{}\"\n".format(' '.join(convert_to_bam)))
+            return None
+        ret_code = subprocess.call(sort_bamfile)
+        if ret_code != 0:
+            sys.stderr.write("Error running command \"{}\"\n".format(' '.join(sort_bamfile)))
+            return None
+        ret_code = subprocess.call(index_bamfile)
+        if ret_code != 0:
+            sys.stderr.write("Error running command \"{}\"\n".format(' '.join(index_bamfile)))
+            return None
 
 
 
@@ -309,7 +338,6 @@ if __name__ == '__main__':
     except:
         parser.print_help()
         sys.exit(1)
-
 
     data = Sam_Reader(args.input)
     if not args.output:
