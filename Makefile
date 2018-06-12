@@ -5,6 +5,21 @@
 
 #---------------Bio 496, Project ---------------
 
+prot_and_dna: diamond_db bowtie2_index
+	while read l; do \
+	echo "Downloading $$l"; \
+	fastq-dump --outdir Input/SRA_datasets/ --skip-technical --readids  --dumpbase --clip $$l; \
+	echo "Scanning $$l with Bowtie 2..."; \
+	bowtie2 -q -x Input/Genomes/all_genomes --no-unal Input/SRA_datasets/$$l.fastq  -S Input/SAM_files/$$l.sam; \
+	echo "Scanning $$l with diamond..."; \
+	diamond blastx -f 6  qseqid sseqid pident length mismatch qstart qend sstart send evalue bitscore sseq qseq -d Input/Proteins/all_diamond_db -q Input/SRA_datasets/$$l.fastq  -o Input/RAP_Results/$$l.m8; \
+	echo "Scan Complete, Removing Data Sets"; \
+	rm -f ~/ncbi/public/sra/*; \
+	rm -f Input/SRA_datasets/*; \
+	samtools view -bS Input/SAM_files/$$l.sam | samtools sort - Input/BAM_files/$$l; \
+	samtools index Input/BAM_files/$$l.bam; \
+	done <Input/SraAccList.txt; \
+
 protein_hits_by_organism:
 	python3 bin/hits_by_organism.py
 
