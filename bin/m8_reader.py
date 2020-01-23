@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 M8_Reader! This package is designed to read .m8 files produced by diamond blastx, specifically with a command
 to include the actual DNA sequence matched to the protein. This information is not provided by default when using

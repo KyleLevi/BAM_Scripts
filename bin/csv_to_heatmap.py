@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 from numpy import vstack  # VSTACK((a,b)) stacks B on TOP of A
 import seaborn as sns; sns.set()
