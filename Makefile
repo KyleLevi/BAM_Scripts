@@ -3,6 +3,10 @@
 # Even if you never use these commands here, they provide a good example of ways to use the python
 #  scripts included in this project.
 
+# --- put test first, so `make` runs this and exits
+test:
+	python bin/test_requirements.py
+
 #---------------Bio 496, Project ---------------
 
 prot_and_dna: diamond_db bowtie2_index
@@ -118,9 +122,6 @@ protein_hits:
 	python3 bin/m8_hits.py -i Input/RAP_Results/ -o Output/protein_hits.csv
 
 
-
-test:
-	python bin/test_requirements.py
 
 demo: clean
 	#Download 100 sample reads
